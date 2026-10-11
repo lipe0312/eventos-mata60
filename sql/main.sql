@@ -17,3 +17,14 @@
 \ir 02_constraints/10_auditoria.sql
 \ir 02_constraints/11_rotinas.sql
 
+\ir 03_populacao/01_cadastros.sql
+\ir 03_populacao/02_oferta.sql
+\ir 03_populacao/03_inscricoes.sql
+\ir 03_populacao/04_validacao.sql
+\ir 03_populacao/05_atividades.sql
+\ir 03_populacao/06_publicacao.sql
+\ir 03_populacao/07_pagamentos.sql
+\ir 03_populacao/08_evento.sql
+\ir 03_populacao/09_certificados.sql
+
+\ir 04_views/01_derivadas.sql
