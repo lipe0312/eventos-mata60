@@ -36,16 +36,25 @@
 
 \renewcommand{\arraystretch}{1.15}
 
-% Recortes do MER final (figuras/mer-final.pdf, exportação VF2 do brModelo, A4 paisagem de 841,92 x 594,96 pt).
-% trim = esquerda inferior direita superior, em pontos.
-\newcommand{\mergeral}{\includegraphics[width=\linewidth,height=0.97\textheight,keepaspectratio,trim=35 36 83 36,clip]{mer-final}}
-\newcommand{\merA}{\includegraphics[width=0.78\linewidth,trim=26.2 37.3 547.4 281.5,clip]{mer-final}}
-\newcommand{\merB}{\includegraphics[width=\linewidth,trim=278.2 68.1 220.1 278.2,clip]{mer-final}}
-\newcommand{\merC}{\includegraphics[width=\linewidth,trim=49.1 303.7 357.6 68.7,clip]{mer-final}}
-\newcommand{\merD}{\includegraphics[width=0.9\linewidth,trim=428.7 192.4 114.1 94.9,clip]{mer-final}}
-\newcommand{\merE}{\includegraphics[width=0.7\linewidth,trim=526.9 225.1 76.1 32.7,clip]{mer-final}}
-\newcommand{\merF}{\includegraphics[width=\linewidth,trim=418.9 37.3 76.1 402.5,clip]{mer-final}}
-\newcommand{\mervum}{\includegraphics[width=\linewidth,trim=28 30 28 30,clip]{mer-v1}}
+% Figuras do MER, já recortadas em PDF vetorial e nomeadas pelo número no relatório.
+% Foram geradas a partir das exportações do brModelo (mer-final.pdf, VF2, e mer-v1.pdf),
+% com trim = esquerda inferior direita superior, em pontos:
+%   figura-1-2-mer-v1        28 30 28 30            (mer-v1)
+%   figura-1-3-mer-geral     35 36 83 36            (mer-final)
+%   figura-1-4-mer-parte-a   26.2 37.3 547.4 281.5  (mer-final)
+%   figura-1-5-mer-parte-b   278.2 68.1 220.1 278.2 (mer-final)
+%   figura-1-6-mer-parte-c   49.1 303.7 357.6 68.7  (mer-final)
+%   figura-1-7-mer-parte-d   428.7 192.4 114.1 94.9 (mer-final)
+%   figura-1-8-mer-parte-e   526.9 225.1 76.1 32.7  (mer-final)
+%   figura-1-9-mer-parte-f   418.9 37.3 76.1 402.5  (mer-final)
+\newcommand{\mervum}{\includegraphics[width=\linewidth]{figura-1-2-mer-v1}}
+\newcommand{\mergeral}{\includegraphics[width=\linewidth,height=0.97\textheight,keepaspectratio]{figura-1-3-mer-geral}}
+\newcommand{\merA}{\includegraphics[width=0.78\linewidth]{figura-1-4-mer-parte-a}}
+\newcommand{\merB}{\includegraphics[width=\linewidth]{figura-1-5-mer-parte-b}}
+\newcommand{\merC}{\includegraphics[width=\linewidth]{figura-1-6-mer-parte-c}}
+\newcommand{\merD}{\includegraphics[width=0.9\linewidth]{figura-1-7-mer-parte-d}}
+\newcommand{\merE}{\includegraphics[width=0.7\linewidth]{figura-1-8-mer-parte-e}}
+\newcommand{\merF}{\includegraphics[width=\linewidth]{figura-1-9-mer-parte-f}}
 
 % Cores do brModelo, medidas na exportação do diagrama
 \definecolor{brforte}{HTML}{7CC4F8}
