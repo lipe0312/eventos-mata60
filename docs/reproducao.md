@@ -14,13 +14,14 @@ psql -U postgres -d eventos -f sql/main.sql
 ```
 
 - `sql/main.sql` interrompe na primeira falha (`ON_ERROR_STOP`) e inclui os demais arquivos com caminho relativo (`\ir`). Por isso pode ser executado de qualquer pasta.
-- O script define `eventos` como schema padrão do banco. Depois de reconectar, as tabelas aparecem sem prefixo.
-- Os papéis (`papel_admin`, `papel_financeiro`, `papel_credenciamento`, `papel_organizacao`, `papel_relatorio`) são criados no servidor apenas se ainda não existirem.
+- Os objetos ficam no schema `eventos`. Para consultar sem prefixo, comece a sessão com `SET SCHEMA 'eventos';`.
+- Os papéis (`papel_admin`, `papel_financeiro`, `papel_credenciamento`, `papel_organizacao`, `papel_relatorio`) são criados no servidor. Como papéis não pertencem a um banco, `dropdb` não os remove.
 
 Recriar do zero:
 
 ```bash
 dropdb -U postgres eventos
+psql -U postgres -c "DROP ROLE papel_admin, papel_financeiro, papel_credenciamento, papel_organizacao, papel_relatorio"
 createdb -U postgres -E UTF8 -T template0 eventos
 psql -U postgres -d eventos -f sql/main.sql
 ```

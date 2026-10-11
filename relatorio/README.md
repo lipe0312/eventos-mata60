@@ -2,5 +2,5 @@
 
 Modelo de Capítulo de Livro da SBC (Regra 4).
 
-- `marcoN/versoes/`: versões intermediárias, `relatorio-marcoN-vX.pdf`.
-- `marcoN/final/`: versão entregue, dividida em partes (uma pasta por seção) para facilitar a leitura. O PDF completo fica em `marcoN/final/relatorio-marcoN-final.pdf`.
+- `marco1/final/relatorio-marco1.pdf`: versão entregue, com o link deste repositório. As pastas de seção guardam as partes do texto e as figuras de cada seção.
+- `marco1/versoes/`: versões intermediárias, `relatorio-marco1-vX.pdf`.

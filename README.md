@@ -8,8 +8,7 @@ Banco de dados do EventOS, sistema de gestão de eventos científicos da SBTC (C
 |-------|----------|
 | `modelagem/` | MER conceitual (Peter Chen, brModelo), legenda de cores e modelo lógico, por versão |
 | `sql/` | Implantação do Marco 1. `sql/main.sql` executa tudo na ordem |
-| `marco2/` | Consultas, otimizações e benchmark do Marco 2 |
-| `relatorio/` | Relatórios no modelo SBC, com versões e a versão final dividida por seção |
+| `relatorio/` | Relatório do Marco 1 no modelo de Capítulo de Livro da SBC (PDF) |
 | `docs/` | Tutorial de reprodução detalhado |
 | `docker/` | Ponto de entrada opcional para subir PostgreSQL e pgAdmin em containers |
 
@@ -47,7 +46,14 @@ psql -U postgres -d eventos -f sql/05_metadados/01_metadados.sql
 
 A última linha dos testes deve mostrar `73 | 73 | 0` (casos, OK, falhas).
 
-Para recriar do zero: `dropdb -U postgres eventos` e repetir os passos.
+Para consultar no psql ou no pgAdmin, comece com `SET SCHEMA 'eventos';`.
+
+Para recriar do zero, apague o banco e os papéis e repita os passos:
+
+```bash
+dropdb -U postgres eventos
+psql -U postgres -c "DROP ROLE papel_admin, papel_financeiro, papel_credenciamento, papel_organizacao, papel_relatorio"
+```
 
 No Windows, os mesmos comandos funcionam no *SQL Shell (psql)* ou no Prompt, trocando `/` por `\` nos caminhos.
 
@@ -72,10 +78,9 @@ Sobe PostgreSQL 16 e pgAdmin (http://localhost:5050) e executa `sql/main.sql` na
 |-------|---------|--------|
 | 1 · MIBD | DDL, regras, população, visões, metadados e testes | concluído |
 | 1 · MIBD | Exportação final do MER, modelo lógico e relatório SBC | em produção |
-| 2 · OCRA | Normalização, 50 consultas, otimização | não iniciado |
 
 ## Regras atendidas
 
-- SQL ISO/IEC 9075 na DDL, na população e nas visões. Recursos específicos do PostgreSQL (triggers em PL/pgSQL, `SELECT … FOR UPDATE`, `current_setting`, papéis) estão justificados no relatório.
+- SQL ISO/IEC 9075 na DDL, na população, nas visões, nos procedimentos e nos papéis. O único código fora do padrão é o corpo das funções de trigger, em PL/pgSQL, porque o PostgreSQL não aceita trigger em SQL puro.
 - Reprodução apenas com PostgreSQL e pgAdmin; o Docker é opcional.
 - Nenhuma linguagem de propósito geral acessa o banco.

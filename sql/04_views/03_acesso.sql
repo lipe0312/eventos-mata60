@@ -10,23 +10,22 @@ SELECT cp_id_pessoa,
        ind_anonimizada
   FROM tbl_pessoa;
 
-DO $$
-DECLARE
-    v_papel varchar(30);
-BEGIN
-    FOREACH v_papel IN ARRAY ARRAY['papel_admin', 'papel_financeiro', 'papel_credenciamento',
-                                   'papel_organizacao', 'papel_relatorio'] LOOP
-        IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = v_papel) THEN
-            EXECUTE 'CREATE ROLE ' || v_papel || ' NOLOGIN';
-        END IF;
-    END LOOP;
-END;
-$$;
+CREATE ROLE papel_admin;
+CREATE ROLE papel_financeiro;
+CREATE ROLE papel_credenciamento;
+CREATE ROLE papel_organizacao;
+CREATE ROLE papel_relatorio;
 
 GRANT USAGE ON SCHEMA eventos TO papel_admin, papel_financeiro, papel_credenciamento, papel_organizacao, papel_relatorio;
 
-GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA eventos TO papel_admin;
-GRANT EXECUTE ON ALL PROCEDURES IN SCHEMA eventos TO papel_admin;
+GRANT SELECT, INSERT, UPDATE, DELETE
+   ON tbl_pessoa, tbl_evento, tbl_edicao_evento, tbl_categoria_inscricao, tbl_faixa_inscricao, tbl_preco,
+      tbl_atividade, tbl_instituicao, tbl_vinculo_institucional, tbl_beneficio, tbl_inscricao,
+      tbl_periodo_associacao, tbl_inscricao_atividade, tbl_trabalho, tbl_item_financeiro, tbl_pagamento,
+      tbl_documento_comprovacao, tbl_termo, tbl_certificado, tbl_auditoria, tbl_autoria,
+      tbl_resposta_termo, tbl_organizacao_edicao, tbl_restricao_atividade
+   TO papel_admin;
+GRANT EXECUTE ON PROCEDURE prc_expirar_pendencias, prc_anonimizar_pessoa TO papel_admin;
 
 GRANT SELECT ON tbl_evento, tbl_edicao_evento, tbl_categoria_inscricao, tbl_faixa_inscricao, tbl_preco,
                 tbl_instituicao, tbl_beneficio, tbl_inscricao, tbl_item_financeiro, tbl_pagamento,
