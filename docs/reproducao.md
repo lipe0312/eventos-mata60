@@ -24,6 +24,13 @@ createdb eventos
 psql -d eventos -f sql/main.sql
 ```
 
-## Testes
+## Testes e metadados
 
-Após a carga, executar os scripts de `sql/99_testes/` pelo pgAdmin (Query Tool) ou `psql`.
+Após a carga:
+
+```bash
+docker compose exec postgres psql -U eventos -d eventos -f /sql/99_testes/01_restricoes.sql
+docker compose exec postgres psql -U eventos -d eventos -f /sql/05_metadados/01_metadados.sql
+```
+
+Pelo pgAdmin, os mesmos arquivos podem ser abertos no Query Tool. O banco já usa o schema `eventos` como padrão.
