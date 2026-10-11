@@ -11,3 +11,10 @@
 *.tmp
 *.log
 *~
+
+# Auxiliares do LaTeX
+*.aux
+*.fls
+*.fdb_latexmk
+*.out
+*.synctex.gz

@@ -8,7 +8,7 @@ Banco de dados do EventOS, sistema de gestão de eventos científicos da SBTC (C
 |-------|----------|
 | `modelagem/` | MER conceitual (Peter Chen, brModelo), legenda de cores e modelo lógico, por versão |
 | `sql/` | Implantação do Marco 1. `sql/main.sql` executa tudo na ordem |
-| `relatorio/` | Relatório do Marco 1 no modelo de Capítulo de Livro da SBC (PDF) |
+| `relatorio/` | Relatório do Marco 1 no modelo de Capítulo de Livro da SBC: PDF e fonte LaTeX para o Overleaf |
 | `docs/` | Tutorial de reprodução detalhado |
 | `docker/` | Ponto de entrada opcional para subir PostgreSQL e pgAdmin em containers |
 
@@ -77,7 +77,8 @@ Sobe PostgreSQL 16 e pgAdmin (http://localhost:5050) e executa `sql/main.sql` na
 | Marco | Entrega | Status |
 |-------|---------|--------|
 | 1 · MIBD | DDL, regras, população, visões, metadados e testes | concluído |
-| 1 · MIBD | Exportação final do MER, modelo lógico e relatório SBC | em produção |
+| 1 · MIBD | MER conceitual final e relatório SBC (PDF e fonte) | concluído |
+| 1 · MIBD | Modelo lógico no brModelo e inserção no relatório | pendente |
 
 ## Regras atendidas
 

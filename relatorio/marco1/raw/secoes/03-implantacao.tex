@@ -1,0 +1,311 @@
+\section{Implantação}
+\label{sec:implantacao}
+
+O banco foi implantado no PostgreSQL \cite{postgresql}, em um schema chamado \cod{eventos}. O script \cod{sql/main.sql} executa todos os arquivos na ordem certa: criação do schema, tabelas, restrições e triggers, população, visões e papéis. Os scripts de metadados e de testes ficam fora dessa sequência e são executados à parte.
+
+As restrições são criadas antes da população. Assim, os dados sintéticos passam pelas mesmas regras que o sistema real teria de cumprir, e a própria carga mostra que o banco aceita estados válidos.
+
+\subsection{Tradução do modelo conceitual para o relacional}
+\label{sec:traducao}
+
+A Tabela~\ref{tab:traducao} resume as regras de tradução que o grupo aplicou, seguindo o mapeamento visto em aula \cite{heuser2009,elmasri2018}.
+
+\begin{longtable}{@{}L{3.4cm} L{5.9cm} L{4.7cm}@{}}
+\caption{Regras de tradução do MER para tabelas}\label{tab:traducao}\\
+\toprule
+No MER & No banco & Exemplo\\
+\midrule
+\endfirsthead
+\toprule
+No MER & No banco & Exemplo\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+Entidade forte & tabela com chave própria \cod{cp_id_*} & \cod{tbl_pessoa}\\
+Entidade fraca & chave substituta, chave estrangeira obrigatória para a dona e unicidade sobre (dona, identificador parcial) & \cod{tbl_edicao_evento}, única por (\cod{ce_evento}, \cod{ano_edicao})\\
+Entidade associativa & tabela própria com as chaves estrangeiras das duas entidades e unicidade sobre o par e o identificador próprio & \cod{tbl_preco}, única por categoria, faixa e tipo de associação\\
+Relacionamento 1:N & coluna \cod{ce_*} no lado N, obrigatória quando o lado 1 é (1,1) & \cod{tbl_inscricao.ce_pessoa}\\
+Relacionamento 1:1 opcional & coluna \cod{ce_*} anulável e única & \cod{tbl_periodo_associacao.ce_inscricao_origem}\\
+Relacionamento N:N & tabela de junção com chave composta & \cod{tbl_autoria}\\
+Autorrelaciona\-mento & chave estrangeira para a própria tabela & \cod{ce_edicao_agregadora}\\
+Atributo de relacionamento 1:N & coluna no lado N & \cod{dt_uso_beneficio} em \cod{tbl_inscricao}\\
+Atributo obrigatório e opcional & \cod{NOT NULL} ou coluna anulável & \cod{nm_pessoa}, \cod{dt_nascimento}\\
+Domínio fechado & \cod{varchar} com \cod{CHECK (... IN (...))} & \cod{status_inscricao}\\
+Cardinalidade mínima 1 no lado N & trigger verificado no fim da transação & toda edição tem pelo menos uma categoria\\
+Atributo derivado & visão, nunca coluna & valor devido, saldo, aptidão a certificado\\
+\end{longtable}
+
+O resultado são 24 tabelas: 20 vindas das entidades e 4 dos relacionamentos N:N sem entidade própria. Dos 30 relacionamentos, 26 viraram colunas de chave estrangeira e 4 viraram tabelas de junção. Os trechos abaixo mostram uma entidade forte com três relacionamentos 1:N e uma tabela de junção.
+
+\begin{lstlisting}
+CREATE TABLE tbl_inscricao (
+    cp_id_inscricao    bigint GENERATED ALWAYS AS IDENTITY,
+    ce_pessoa          bigint       NOT NULL,
+    ce_preco           bigint       NOT NULL,
+    ce_beneficio       bigint,
+    dt_inscricao       timestamp    NOT NULL,
+    status_inscricao   varchar(25)  NOT NULL,
+    dt_validade_preco  timestamp    NOT NULL,
+    dt_uso_beneficio   timestamp,
+    dt_confirmacao     timestamp,
+    dt_cancelamento    timestamp,
+    dt_credenciamento  timestamp,
+    CONSTRAINT pk_inscricao PRIMARY KEY (cp_id_inscricao),
+    CONSTRAINT fk_inscricao_pessoa FOREIGN KEY (ce_pessoa)
+        REFERENCES tbl_pessoa (cp_id_pessoa),
+    CONSTRAINT fk_inscricao_preco FOREIGN KEY (ce_preco)
+        REFERENCES tbl_preco (cp_id_preco),
+    CONSTRAINT fk_inscricao_beneficio FOREIGN KEY (ce_beneficio)
+        REFERENCES tbl_beneficio (cp_id_beneficio),
+    ...
+);
+
+CREATE TABLE tbl_autoria (
+    ce_pessoa    bigint NOT NULL,
+    ce_trabalho  bigint NOT NULL,
+    CONSTRAINT pk_autoria PRIMARY KEY (ce_pessoa, ce_trabalho),
+    CONSTRAINT fk_autoria_pessoa FOREIGN KEY (ce_pessoa)
+        REFERENCES tbl_pessoa (cp_id_pessoa),
+    CONSTRAINT fk_autoria_trabalho FOREIGN KEY (ce_trabalho)
+        REFERENCES tbl_trabalho (cp_id_trabalho)
+);
+\end{lstlisting}
+
+Não usamos \cod{ON DELETE CASCADE} nem valores padrão. A exclusão em cascata apagaria histórico que o RF27 manda preservar, e nenhum valor padrão foi definido no modelo.
+
+\subsection{Nomes e tipos}
+
+O grupo adotou um padrão único de nomes, aplicado a todos os objetos do banco. Nas tabelas e colunas: \cod{tbl_} para tabelas, \cod{cp_} para chave primária, \cod{ce_} para chave estrangeira, \cod{nm_} para nome, \cod{ds_} para descrição, \cod{sg_} para sigla, \cod{cd_} para código, \cod{dt_} para data ou instante, \cod{nr_} para número ou quantidade, \cod{vl_} para valor monetário, \cod{ind_} para indicador lógico e \cod{tp_} ou \cod{status_} para domínios fechados. e \cod{pc_} para percentuais. As restrições têm nome próprio com os prefixos \cod{pk_}, \cod{fk_}, \cod{uq_} e \cod{ck_}, o que deixa as mensagens de erro legíveis e facilita a consulta aos metadados. Os demais objetos usam \cod{vw_} para visões, \cod{fn_} para funções, \cod{tg_} para triggers, \cod{prc_} para procedimentos e \cod{papel_} para papéis de acesso.
+
+Valores monetários usam \cod{numeric(10,2)} e percentuais usam \cod{numeric(5,2)} com faixa de 0 a 100. Chaves são do tipo \cod{bigint}, geradas com \cod{GENERATED ALWAYS AS IDENTITY}, e textos longos usam \cod{varchar(4000)}, como explica a Seção~\ref{sec:iso}.
+
+\subsection{Restrições e regras de negócio}
+\label{sec:restricoes}
+
+As regras que dependem de uma única linha ou da unicidade de uma tabela são declarativas. O banco tem 24 chaves primárias, 37 chaves estrangeiras, 22 restrições de unicidade e 44 restrições de verificação nomeadas. A Tabela~\ref{tab:dominios} lista os domínios fechados.
+
+{\small
+\begin{longtable}{@{}L{4.6cm} L{9.7cm}@{}}
+\caption{Domínios fechados verificados por CHECK}\label{tab:dominios}\\
+\toprule
+Atributo & Valores\\
+\midrule
+\endfirsthead
+\toprule
+Atributo & Valores\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\cod{tp_evento} & CONGRESSO, SIMPOSIO, WORKSHOP, ESCOLA, COMPETICAO, OUTRO\\
+\cod{modalidade_evento} & PRESENCIAL, REMOTO, HIBRIDO\\
+\cod{tp_associacao} & NAO\_ASSOCIADO, ASSOCIADO, COMBO\_NOVA, COMBO\_RENOVACAO\\
+\cod{tp_vinculo} & ESTUDANTE, DOCENTE, SERVIDOR, FUNCIONARIO, OUTRO\\
+\cod{tp_beneficio} & GRATUIDADE, DESCONTO\\
+\cod{status_inscricao} & INICIADA, AGUARDANDO\_VALIDACAO, AGUARDANDO\_PAGAMENTO, PAGA, CANCELADA, CONCLUIDA, EXPIRADA\\
+\cod{status_inscricao_atividade} & RESERVADA, CONFIRMADA, CANCELADA, EXPIRADA\\
+\cod{tp_item} & INSCRICAO, ASSOCIACAO, ATIVIDADE, TAXA\_PUBLICACAO, DESCONTO\\
+\cod{status_item} & VALIDO, SUBSTITUIDO, CANCELADO\\
+\cod{tp_pagamento} & CARTAO, BOLETO, FATURAMENTO, EMPENHO\\
+\cod{status_pagamento} & PENDENTE, CONFIRMADO, RECUSADO, CANCELADO, EXPIRADO, ESTORNADO\\
+\cod{status_documento} & PENDENTE, APROVADO, REJEITADO\\
+\cod{tp_certificado} & PARTICIPACAO, ATIVIDADE, AUTORIA, ORGANIZACAO\\
+\cod{status_certificado} & VALIDO, REVOGADO\\
+\cod{tp_operacao} & INSERT, UPDATE, DELETE\\
+\cod{tp_papel} & COORD\_GERAL, COORD\_FINANCEIRA, APOIO\_ADMIN\\
+\end{longtable}
+}
+
+Outras verificações declarativas cobrem regras de uma linha: CPF ou passaporte obrigatório, fim depois do início em todos os intervalos, valor da associação presente só no combo, vencimento obrigatório em boleto e empenho, credenciamento só em inscrição paga ou concluída, presença só em atividade confirmada, motivo de rejeição presente só em documento rejeitado e reembolso preenchido só em pagamento estornado.
+
+Regras que comparam linhas ou tabelas não cabem em uma restrição declarativa e ficam em triggers. São 54 triggers, organizados por tema (Tabela~\ref{tab:triggers}). Cada regra é uma função \cod{fn_*} ligada a um trigger \cod{tg_*}.
+
+{\small
+\begin{longtable}{@{}L{3.9cm} c L{9.2cm}@{}}
+\caption{Triggers por arquivo}\label{tab:triggers}\\
+\toprule
+Arquivo & Qtd. & Regras\\
+\midrule
+\endfirsthead
+\toprule
+Arquivo & Qtd. & Regras\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+\cod{02_consistencia} & 7 & faixas e períodos de associação sem sobreposição; preço com categoria e faixa da mesma edição; agregação de um nível; restrição de atividade da mesma edição; origem do item coerente com a inscrição; atividade do certificado da mesma edição\\
+\cod{03_inscricao} & 5 & ciclo de vida da inscrição, geração dos itens, troca de preço, uso de benefício e cancelamento\\
+\cod{04_pagamento_documento} & 4 & pagamento só em inscrição aguardando pagamento; transições de pagamento e de documento\\
+\cod{05_atividade} & 4 & mesma edição, categoria permitida, capacidade e item da atividade\\
+\cod{06_publicacao} & 2 & cobertura por autor em categoria de autor e taxa por trabalho excedente\\
+\cod{07_certificado} & 2 & elegibilidade por tipo, um certificado válido por finalidade e só revogação\\
+\cod{08_historico} & 14 & bloqueio de alteração em preço usado, item, termo, resposta, auditoria e políticas da edição\\
+\cod{09_cardinalidade_minima} & 12 & mínimos 1 do MER, verificados no fim da transação\\
+\cod{10_auditoria} & 4 & registro de operações em inscrição, documento, pagamento e certificado\\
+\end{longtable}
+}
+
+O ciclo de vida da inscrição (RF9) é a regra mais extensa. Toda inscrição nasce como INICIADA, e o trigger calcula a validade do preço e cria os itens financeiros. As transições permitidas são estas: de INICIADA para aguardando validação, aguardando pagamento, cancelada ou expirada; de aguardando validação para aguardando pagamento, cancelada ou expirada; de aguardando pagamento para paga, cancelada ou expirada; e de paga para concluída ou cancelada. Concluída, cancelada e expirada são finais. A passagem para aguardando pagamento exige documento aprovado quando a categoria pede comprovação, e a passagem para paga exige pagamentos confirmados que cubram o saldo.
+
+Ao cancelar uma inscrição, o banco cancela os itens e as atividades, libera a cobertura dos trabalhos e marca os pagamentos confirmados como estornados, com o reembolso calculado pela política da edição.
+
+As cardinalidades mínimas 1 do lado N, como ``toda edição tem pelo menos uma categoria'', só podem ser verificadas depois que as duas linhas existem. Por isso usamos triggers adiados para o fim da transação:
+
+\begin{lstlisting}
+CREATE CONSTRAINT TRIGGER tg_edicao_oferta_minima
+AFTER INSERT ON tbl_edicao_evento DEFERRABLE INITIALLY DEFERRED
+FOR EACH ROW EXECUTE FUNCTION fn_edicao_oferta_minima();
+\end{lstlisting}
+
+Dois procedimentos completam as regras: \cod{prc_expirar_pendencias} expira inscrições e reservas de atividade com prazo vencido (RE2, RE4, RE11), e \cod{prc_anonimizar_pessoa} anonimiza o cadastro de uma pessoa (RE8, RF30).
+
+\subsection{Concorrência, auditoria e proteção de dados}
+
+Para o RF29, o trigger de inscrição em atividade bloqueia a linha da atividade com \cod{SELECT ... FOR UPDATE} antes de contar as vagas ocupadas. Se duas transações tentam ocupar a última vaga ao mesmo tempo, a segunda espera a primeira terminar e já encontra a vaga ocupada. O mesmo bloqueio é usado nos limites de benefício e na emissão de certificados.
+
+Para o RF25, os triggers de auditoria registram, em cada inserção, alteração ou exclusão de inscrição, documento, pagamento e certificado, a tabela, o registro, a operação, o instante e os valores anterior e novo. O responsável vem de um parâmetro da sessão (\cod{eventos.cp_pessoa}) que a aplicação define; quando ele está vazio, a operação é registrada como automática. A auditoria não aceita alteração nem exclusão.
+
+Para o RF30, o banco guarda só os dados pessoais necessários e, no caso dos documentos, apenas o caminho do arquivo. Há cinco papéis: administração, financeiro, credenciamento, organização e relatório. Cada um recebe permissões só nas tabelas e colunas de que precisa, e quem não deve ver CPF, passaporte ou e-mail usa a visão \cod{vw_pessoa_mascarada}. A anonimização substitui os dados da pessoa e preserva inscrições, itens e pagamentos.
+
+\subsection{Aderência ao SQL padrão}
+\label{sec:iso}
+
+A Regra 6 pede SQL portável segundo a ISO/IEC 9075 \cite{iso9075}. O grupo adotou o critério de usar apenas o que o padrão define ou o que o enunciado pede de forma explícita. A DDL, a população, as visões, os procedimentos (\cod{LANGUAGE SQL} com \cod{BEGIN ATOMIC}) e os papéis (\cod{CREATE ROLE} e \cod{GRANT}) usam construções do padrão, como \cod{GENERATED ALWAYS AS IDENTITY}, \cod{WITH RECURSIVE}, \cod{CAST}, \cod{MOD}, \cod{INTERVAL}, \cod{FETCH FIRST} e funções de janela. Pelo mesmo motivo, trocamos \cod{SERIAL} e \cod{text}, que aparecem na especificação do enunciado, por \cod{GENERATED ALWAYS AS IDENTITY} e \cod{varchar(n)}.
+
+O código fora do padrão está todo no corpo das funções chamadas pelos triggers, escritas em PL/pgSQL. São 41 funções: 36 de trigger e 5 auxiliares usadas por elas. O enunciado pergunta quais regras exigem triggers (seção 1.5), e o PostgreSQL não aceita trigger com corpo em SQL puro. Dentro dessas funções ficam também o bloqueio \cod{SELECT ... FOR UPDATE} do RF29 e a leitura do responsável pela operação com \cod{current_setting} do RF25. A única outra instrução própria do PostgreSQL é \cod{GRANT USAGE ON SCHEMA}, exigida para que os papéis enxerguem o schema.
+
+O arquivo de testes (\cod{sql/99_testes}) também usa PL/pgSQL, para capturar o erro esperado de cada caso. Ele não faz parte do banco entregue, roda dentro de uma transação desfeita ao final e serve só para verificar as regras.
+
+O banco não usa nenhuma extensão nem linguagem de propósito geral. O Marco 1 também não cria índices além dos gerados pelas chaves primárias e restrições de unicidade: \cod{CREATE INDEX} não faz parte do padrão, e a indexação é tema do Marco 2, que compara as consultas otimizadas com as consultas sem alteração.
+
+\subsection{População}
+
+Os dados são sintéticos, gerados por scripts SQL e revisados pelo grupo. A geração é determinística: os valores saem de contas sobre o número da linha (\cod{MOD}) com \cod{WITH RECURSIVE}, sem sorteio, e toda instalação produz os mesmos dados. Os nove arquivos de \cod{sql/03_populacao} seguem a ordem do ciclo de vida: cadastros, oferta, inscrições, validação de documentos, atividades, publicação, pagamentos, realização do evento e certificados.
+
+Os dados cobrem um cenário de cada regra. As edições de 2025 já aconteceram e têm credenciamento, presença, inscrições concluídas e certificados; as de 2026 estão em andamento, com inscrições, pagamentos e documentos pendentes. Há um evento agregador, combos que criam períodos de associação, documentos rejeitados com segunda tentativa aprovada, pagamentos recusados seguidos de pagamento confirmado, cancelamentos com e sem estorno, benefícios dentro dos limites, trabalhos com coautoria, trabalhos sem cobertura e com sobretaxa, e certificados dos quatro tipos, inclusive revogados e reemitidos.
+
+A Tabela~\ref{tab:volumes} mostra o volume final. Sete tabelas passam de cinco mil linhas; a rubrica pede três. Das 9.000 inscrições, 3.746 estão concluídas, 3.705 pagas, 660 expiradas, 342 aguardando pagamento, 230 canceladas, 226 aguardando validação e 91 iniciadas.
+
+\begin{table}[h!]
+\caption{Linhas por tabela depois da população}\label{tab:volumes}
+\centering\small
+\begin{tabular}{@{}l r @{\hspace{0.6cm}} l r@{}}
+\toprule
+Tabela & Linhas & Tabela & Linhas\\
+\midrule
+\cod{tbl_auditoria} & 68.104 & \cod{tbl_preco} & 960\\
+\cod{tbl_resposta_termo} & 18.000 & \cod{tbl_autoria} & 500\\
+\cod{tbl_item_financeiro} & 12.348 & \cod{tbl_trabalho} & 300\\
+\cod{tbl_inscricao} & 9.000 & \cod{tbl_atividade} & 120\\
+\cod{tbl_pagamento} & 8.723 & \cod{tbl_categoria_inscricao} & 80\\
+\cod{tbl_vinculo_institucional} & 6.600 & \cod{tbl_organizacao_edicao} & 60\\
+\cod{tbl_pessoa} & 6.000 & \cod{tbl_faixa_inscricao} & 60\\
+\cod{tbl_documento_comprovacao} & 4.972 & \cod{tbl_restricao_atividade} & 40\\
+\cod{tbl_inscricao_atividade} & 4.509 & \cod{tbl_beneficio} & 40\\
+\cod{tbl_certificado} & 3.645 & \cod{tbl_instituicao} & 40\\
+\cod{tbl_periodo_associacao} & 3.198 & \cod{tbl_edicao_evento} & 20\\
+ & & \cod{tbl_evento} & 10\\
+ & & \cod{tbl_termo} & 4\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Relatórios gerenciais}
+\label{sec:relatorios}
+
+Cada relatório do RF26 é uma visão sobre o modelo, sem tabela própria (Tabela~\ref{tab:visoes}). Além delas, seis visões calculam atributos derivados usados pelos relatórios e pelas regras: detalhe da inscrição, valor devido, saldo, situação de associação, acesso a edições agregadas e aptidão a certificado.
+
+{\small
+\begin{longtable}{@{}l L{6.9cm} L{6.3cm}@{}}
+\caption{Visões que atendem o RF26}\label{tab:visoes}\\
+\toprule
+Item & Relatório & Visão\\
+\midrule
+\endfirsthead
+\toprule
+Item & Relatório & Visão\\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+i & inscritos por evento, categoria e instituição & \cod{vw_inscritos_evento_categoria_instituicao}\\
+ii & evolução acumulada das inscrições & \cod{vw_evolucao_inscricoes}\\
+iii & inscrições pagas, pendentes e canceladas & \cod{vw_situacao_inscricoes}\\
+iv & receita bruta e líquida por edição & \cod{vw_receita_edicao}\\
+v & receita por categoria e forma de pagamento & \cod{vw_receita_categoria_forma}\\
+vi & uso de benefícios institucionais & \cod{vw_uso_beneficio}\\
+vii & inscritos em atividades com vagas limitadas & \cod{vw_inscritos_atividade_limitada}\\
+viii & trabalhos sem inscrição elegível & \cod{vw_trabalho_sem_cobertura}\\
+ix & participantes aptos e não aptos a certificado & \cod{vw_aptidao_certificado}\\
+x & credenciados por dia ou atividade & \cod{vw_credenciados_dia_atividade}\\
+xi & participantes por instituição, UF e categoria & \cod{vw_distribuicao_participantes}\\
+xii & documentos pendentes de análise & \cod{vw_documentos_pendentes}\\
+\end{longtable}
+}
+
+A receita bruta soma os pagamentos confirmados e os estornados, e a receita líquida desconta os reembolsos. A Tabela~\ref{tab:receita} mostra as primeiras linhas do relatório iv.
+
+\begin{table}[h!]
+\caption{Primeiras linhas da visão de receita por edição}\label{tab:receita}
+\centering\small
+\begin{tabular}{@{}l c r r r@{}}
+\toprule
+Evento & Ano & Receita bruta (R\$) & Reembolsos (R\$) & Receita líquida (R\$)\\
+\midrule
+CIA & 2025 & 123.724,00 & 0,00 & 123.724,00\\
+CIA & 2026 & 124.331,00 & 0,00 & 124.331,00\\
+CTC & 2025 & 146.229,00 & 0,00 & 146.229,00\\
+CTC & 2026 & 146.332,00 & 7.100,80 & 139.231,20\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Exploração de metadados}
+
+Para explorar os metadados, consultamos o catálogo \cod{information_schema}, que também faz parte do padrão. O script \cod{01_metadados.sql}, na pasta \cod{sql/05_metadados}, lista tabelas, colunas com tipo e nulidade, restrições por tipo, o grafo de chaves estrangeiras, as verificações, os triggers, as rotinas, as visões, as permissões dos papéis e a contagem de linhas. A consulta abaixo monta o grafo de chaves estrangeiras.
+
+\begin{lstlisting}
+SELECT kcu.table_name  AS tabela_origem,
+       kcu.column_name AS coluna_origem,
+       ccu.table_name  AS tabela_destino,
+       ccu.column_name AS coluna_destino,
+       rc.constraint_name
+  FROM information_schema.referential_constraints rc
+  JOIN information_schema.key_column_usage kcu
+    ON kcu.constraint_schema = rc.constraint_schema
+   AND kcu.constraint_name = rc.constraint_name
+  JOIN information_schema.constraint_column_usage ccu
+    ON ccu.constraint_schema = rc.unique_constraint_schema
+   AND ccu.constraint_name = rc.unique_constraint_name
+ WHERE rc.constraint_schema = 'eventos'
+ ORDER BY kcu.table_name, kcu.column_name;
+\end{lstlisting}
+
+A Tabela~\ref{tab:metadados} resume o que o catálogo mostra depois da implantação. As contagens por tabela da Tabela~\ref{tab:volumes} também saem desse script.
+
+\begin{table}[h!]
+\caption{Resumo dos metadados do schema eventos}\label{tab:metadados}
+\centering\small
+\begin{tabular}{@{}l r@{}}
+\toprule
+Objeto & Quantidade\\
+\midrule
+Tabelas & 24\\
+Colunas das tabelas & 175\\
+Visões & 18\\
+Chaves primárias & 24\\
+Chaves estrangeiras & 37\\
+Restrições de unicidade & 22\\
+Restrições de verificação nomeadas & 44\\
+Triggers & 54\\
+Funções PL/pgSQL & 41\\
+Procedimentos em SQL & 2\\
+Papéis & 5\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Verificação}
+
+O arquivo \cod{sql/99_testes/01_restricoes.sql} tem 73 casos, que cobrem as restrições de verificação e as regras dos triggers. Cada caso válido precisa ser aceito, e cada caso inválido precisa ser recusado com a mensagem da regra esperada. O arquivo roda dentro de uma transação desfeita ao final, então não altera os dados. Na versão entregue, os 73 casos passam. A implantação foi testada do zero nas versões 14, 16 e 18 do PostgreSQL.

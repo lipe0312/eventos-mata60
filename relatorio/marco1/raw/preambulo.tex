@@ -1,0 +1,62 @@
+\makeatletter
+% Legendas de longtable no mesmo estilo do modelo SBC (Helvetica 10 pt, negrito)
+\def\LT@makecaption#1#2#3{%
+  \LT@mcol\LT@cols c{\hbox to\z@{\hss\parbox[t]\LTcapwidth{%
+    \centering\sffamily\captionsize\textbf{#2. #3}\par\vskip\belowcaptionskip}\hss}}}
+\makeatother
+\setlength{\LTcapwidth}{\textwidth}
+\setlength{\LTpre}{6pt}
+\setlength{\LTpost}{6pt}
+
+\newcommand{\pendente}[1]{\textcolor{red}{\textbf{[PENDENTE: #1]}}}
+\newcommand{\repo}{\url{https://github.com/lipe0312/eventos-mata60}}
+\DeclareUrlCommand\cod{\urlstyle{tt}}
+\makeatletter
+\g@addto@macro\UrlBreaks{\do\_\do\(\do\)\do\,}
+\Urlmuskip=0mu plus 2mu
+\makeatother
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+
+\lstdefinestyle{sql}{
+  language=SQL,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\bfseries,
+  columns=fullflexible,
+  keepspaces=true,
+  frame=tb,
+  framerule=0.4pt,
+  aboveskip=6pt,
+  belowskip=6pt,
+  showstringspaces=false,
+  breaklines=true,
+  morekeywords={GENERATED,ALWAYS,IDENTITY,DEFERRABLE,INITIALLY,DEFERRED,TRIGGER,EXECUTE,FUNCTION,RECURSIVE,ATOMIC,PROCEDURE,ROLE,GRANT,USAGE,SCHEMA}
+}
+\lstset{style=sql}
+
+\renewcommand{\arraystretch}{1.15}
+
+% Recortes do MER final (figuras/mer-final.pdf, exportação VF2 do brModelo, A4 paisagem de 841,92 x 594,96 pt).
+% trim = esquerda inferior direita superior, em pontos.
+\newcommand{\mergeral}{\includegraphics[width=\linewidth,height=0.97\textheight,keepaspectratio,trim=35 36 83 36,clip]{mer-final}}
+\newcommand{\merA}{\includegraphics[width=0.78\linewidth,trim=26.2 37.3 547.4 281.5,clip]{mer-final}}
+\newcommand{\merB}{\includegraphics[width=\linewidth,trim=278.2 68.1 220.1 278.2,clip]{mer-final}}
+\newcommand{\merC}{\includegraphics[width=\linewidth,trim=49.1 303.7 357.6 68.7,clip]{mer-final}}
+\newcommand{\merD}{\includegraphics[width=0.9\linewidth,trim=428.7 192.4 114.1 94.9,clip]{mer-final}}
+\newcommand{\merE}{\includegraphics[width=0.7\linewidth,trim=526.9 225.1 76.1 32.7,clip]{mer-final}}
+\newcommand{\merF}{\includegraphics[width=\linewidth,trim=418.9 37.3 76.1 402.5,clip]{mer-final}}
+\newcommand{\mervum}{\includegraphics[width=\linewidth,trim=28 30 28 30,clip]{mer-v1}}
+
+% Cores do brModelo, medidas na exportação do diagrama
+\definecolor{brforte}{HTML}{7CC4F8}
+\definecolor{brfraca}{HTML}{FFFF88}
+\definecolor{brassoc}{HTML}{FCA397}
+\definecolor{brauto}{HTML}{79D297}
+\definecolor{brrel}{HTML}{F9F9F9}
+\definecolor{bratrib}{HTML}{666666}
+\tikzset{
+  ent/.style={draw=black,line width=0.9pt,minimum width=1.9cm,minimum height=0.62cm,font=\sffamily\scriptsize},
+  rel/.style={draw=black,line width=0.9pt,diamond,aspect=2.2,inner sep=1pt,minimum width=1.7cm,font=\sffamily\scriptsize},
+  atr/.style={circle,draw=bratrib,line width=0.8pt,minimum size=5pt,inner sep=0pt},
+  idt/.style={circle,fill=bratrib,minimum size=7pt,inner sep=0pt},
+}

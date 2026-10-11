@@ -1,0 +1,192 @@
+\begin{longtable}{@{}L{4.4cm} L{3.1cm} L{1.9cm} L{4.1cm}@{}}
+\caption{Dicionário de atributos das entidades}\label{tab:dicionario}\\
+\toprule
+Atributo & Tipo & Obrigatório & Chave\\
+\endfirsthead
+\toprule
+Atributo & Tipo & Obrigatório & Chave\\
+\endhead
+\bottomrule
+\endfoot
+\midrule
+\multicolumn{4}{@{}l}{\textbf{1. Pessoa} (forte)}\\
+\midrule
+\cod{cp_id_pessoa} & \cod{bigint} & sim & identificador\\
+\cod{nm_pessoa} & \cod{varchar(200)} & sim & \\
+\cod{email_pessoa} & \cod{varchar(254)} & sim & único\\
+\cod{pais_pessoa} & \cod{char(2)} & sim & \\
+\cod{uf_pessoa} & \cod{char(2)} & não & \\
+\cod{cpf_pessoa} & \cod{char(11)} & não & único\\
+\cod{passaporte_pessoa} & \cod{varchar(30)} & não & \\
+\cod{dt_nascimento} & \cod{date} & não & \\
+\cod{ind_anonimizada} & \cod{boolean} & sim & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{2. Evento} (forte)}\\
+\midrule
+\cod{cp_id_evento} & \cod{bigint} & sim & identificador\\
+\cod{sg_evento} & \cod{varchar(20)} & sim & único\\
+\cod{nm_evento} & \cod{varchar(200)} & sim & \\
+\cod{tp_evento} & \cod{varchar(20)} & sim & \\
+\cod{ds_evento} & \cod{varchar(4000)} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{3. Edição} (fraca, dona: Evento)}\\
+\midrule
+\cod{ano_edicao} & \cod{smallint} & sim & identificador parcial\\
+\cod{nr_edicao} & \cod{int} & não & \\
+\cod{dt_inicio_evento} & \cod{date} & sim & \\
+\cod{dt_fim_evento} & \cod{date} & sim & \\
+\cod{dt_inicio_inscricao} & \cod{timestamp} & sim & \\
+\cod{dt_fim_inscricao} & \cod{timestamp} & sim & \\
+\cod{modalidade_evento} & \cod{varchar(10)} & sim & \\
+\cod{cidade_evento} & \cod{varchar(100)} & sim & \\
+\cod{uf_evento} & \cod{char(2)} & não & \\
+\cod{pais_evento} & \cod{char(2)} & sim & \\
+\cod{nr_dias_reserva} & \cod{smallint} & sim & \\
+\cod{nr_dias_limite_reembolso} & \cod{smallint} & sim & \\
+\cod{pc_reembolso} & \cod{numeric(5,2)} & sim & \\
+\cod{ind_exige_credenciamento} & \cod{boolean} & sim & \\
+\cod{pc_frequencia_minima} & \cod{numeric(5,2)} & não & \\
+\cod{nr_max_trabalhos_inscricao} & \cod{smallint} & não & \\
+\cod{vl_taxa_trabalho_extra} & \cod{numeric(10,2)} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{4. Categoria de Inscrição} (fraca, dona: Edição)}\\
+\midrule
+\cod{nm_categoria} & \cod{varchar(100)} & sim & identificador parcial\\
+\cod{ind_exige_comprovacao} & \cod{boolean} & sim & \\
+\cod{ind_categoria_autor} & \cod{boolean} & sim & \\
+\cod{ds_categoria} & \cod{varchar(4000)} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{5. Faixa de Inscrição} (fraca, dona: Edição)}\\
+\midrule
+\cod{nm_faixa} & \cod{varchar(60)} & sim & identificador parcial\\
+\cod{dt_inicio_faixa} & \cod{timestamp} & sim & \\
+\cod{dt_fim_faixa} & \cod{timestamp} & sim & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{6. Preço} (associativa (Categoria × Faixa))}\\
+\midrule
+\cod{tp_associacao} & \cod{varchar(20)} & sim & identificador parcial\\
+\cod{vl_inscricao} & \cod{numeric(10,2)} & sim & \\
+\cod{vl_associacao} & \cod{numeric(10,2)} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{7. Atividade} (fraca, dona: Edição)}\\
+\midrule
+\cod{nm_atividade} & \cod{varchar(200)} & sim & identificador parcial\\
+\cod{dt_inicio} & \cod{timestamp} & sim & identificador parcial\\
+\cod{tp_atividade} & \cod{varchar(20)} & sim & \\
+\cod{dt_fim} & \cod{timestamp} & sim & \\
+\cod{ind_inscricao_adicional} & \cod{boolean} & sim & \\
+\cod{nr_capacidade} & \cod{int} & não & \\
+\cod{vl_atividade} & \cod{numeric(10,2)} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{8. Instituição} (forte)}\\
+\midrule
+\cod{cp_id_instituicao} & \cod{bigint} & sim & identificador\\
+\cod{nm_instituicao} & \cod{varchar(200)} & sim & \\
+\cod{sg_instituicao} & \cod{varchar(30)} & sim & \\
+\cod{pais_instituicao} & \cod{char(2)} & sim & \\
+\cod{ind_associada} & \cod{boolean} & sim & \\
+\cod{cnpj_instituicao} & \cod{char(14)} & não & único\\
+\cod{cidade_instituicao} & \cod{varchar(100)} & não & \\
+\cod{uf_instituicao} & \cod{char(2)} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{9. Vínculo Institucional} (associativa (Pessoa × Instituição))}\\
+\midrule
+\cod{dt_inicio_vinculo} & \cod{date} & sim & identificador parcial\\
+\cod{tp_vinculo} & \cod{varchar(20)} & sim & \\
+\cod{dt_fim_vinculo} & \cod{date} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{10. Benefício} (fraca, dona: Instituição)}\\
+\midrule
+\cod{tp_beneficio} & \cod{varchar(20)} & sim & identificador parcial\\
+\cod{dt_inicio_vigencia} & \cod{date} & sim & identificador parcial\\
+\cod{dt_fim_vigencia} & \cod{date} & sim & \\
+\cod{nr_limite_periodo} & \cod{int} & sim & \\
+\cod{nr_limite_por_edicao} & \cod{int} & sim & \\
+\cod{pc_desconto} & \cod{numeric(5,2)} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{11. Período de Associação} (fraca, dona: Pessoa)}\\
+\midrule
+\cod{dt_inicio_associacao} & \cod{date} & sim & identificador parcial\\
+\cod{dt_fim_associacao} & \cod{date} & sim & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{12. Inscrição} (forte)}\\
+\midrule
+\cod{cp_id_inscricao} & \cod{bigint} & sim & identificador\\
+\cod{dt_inscricao} & \cod{timestamp} & sim & \\
+\cod{status_inscricao} & \cod{varchar(25)} & sim & \\
+\cod{dt_validade_preco} & \cod{timestamp} & sim & \\
+\cod{dt_confirmacao} & \cod{timestamp} & não & \\
+\cod{dt_cancelamento} & \cod{timestamp} & não & \\
+\cod{dt_credenciamento} & \cod{timestamp} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{13. Inscrição em Atividade} (associativa (Inscrição × Atividade))}\\
+\midrule
+\cod{dt_inclusao} & \cod{timestamp} & sim & \\
+\cod{status_inscricao_atividade} & \cod{varchar(20)} & sim & \\
+\cod{dt_expira_reserva} & \cod{timestamp} & não & \\
+\cod{dt_cancelamento} & \cod{timestamp} & não & \\
+\cod{dt_presenca} & \cod{timestamp} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{14. Item Financeiro} (fraca, dona: Inscrição)}\\
+\midrule
+\cod{nr_item} & \cod{smallint} & sim & identificador parcial\\
+\cod{tp_item} & \cod{varchar(20)} & sim & \\
+\cod{vl_item} & \cod{numeric(10,2)} & sim & \\
+\cod{status_item} & \cod{varchar(15)} & sim & \\
+\cod{dt_criacao} & \cod{timestamp} & sim & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{15. Pagamento} (fraca, dona: Inscrição)}\\
+\midrule
+\cod{dt_criacao} & \cod{timestamp} & sim & identificador parcial\\
+\cod{tp_pagamento} & \cod{varchar(15)} & sim & \\
+\cod{vl_pagamento} & \cod{numeric(10,2)} & sim & \\
+\cod{status_pagamento} & \cod{varchar(15)} & sim & \\
+\cod{dt_confirmacao} & \cod{timestamp} & não & \\
+\cod{dt_vencimento} & \cod{date} & não & \\
+\cod{cd_transacao_externa} & \cod{varchar(100)} & não & único\\
+\cod{vl_reembolso} & \cod{numeric(10,2)} & não & \\
+\cod{dt_reembolso} & \cod{timestamp} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{16. Documento de Comprovação} (fraca, dona: Inscrição)}\\
+\midrule
+\cod{dt_envio} & \cod{timestamp} & sim & identificador parcial\\
+\cod{tp_documento} & \cod{varchar(30)} & sim & \\
+\cod{status_documento} & \cod{varchar(10)} & sim & \\
+\cod{ds_caminho_arquivo} & \cod{varchar(500)} & sim & \\
+\cod{dt_analise} & \cod{timestamp} & não & \\
+\cod{ds_motivo_rejeicao} & \cod{varchar(500)} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{17. Trabalho Científico} (fraca, dona: Edição)}\\
+\midrule
+\cod{cd_trabalho_externo} & \cod{varchar(50)} & sim & identificador parcial\\
+\cod{titulo_trabalho} & \cod{varchar(500)} & sim & \\
+\cod{tp_trabalho} & \cod{varchar(20)} & sim & \\
+\cod{status_trabalho} & \cod{varchar(15)} & sim & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{18. Termo} (forte)}\\
+\midrule
+\cod{cp_id_termo} & \cod{bigint} & sim & identificador\\
+\cod{nm_termo} & \cod{varchar(100)} & sim & \\
+\cod{nr_versao} & \cod{varchar(10)} & sim & \\
+\cod{ds_termo} & \cod{varchar(4000)} & sim & \\
+\cod{dt_inicio_vigencia} & \cod{timestamp} & sim & \\
+\cod{dt_fim_vigencia} & \cod{timestamp} & não & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{19. Certificado} (forte)}\\
+\midrule
+\cod{cp_id_certificado} & \cod{bigint} & sim & identificador\\
+\cod{cd_validacao} & \cod{varchar(64)} & sim & único\\
+\cod{tp_certificado} & \cod{varchar(20)} & sim & \\
+\cod{dt_emissao} & \cod{timestamp} & sim & \\
+\cod{status_certificado} & \cod{varchar(10)} & sim & \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{20. Auditoria} (forte)}\\
+\midrule
+\cod{cp_id_auditoria} & \cod{bigint} & sim & identificador\\
+\cod{nm_tabela} & \cod{varchar(60)} & sim & \\
+\cod{cd_registro} & \cod{bigint} & sim & \\
+\cod{tp_operacao} & \cod{varchar(10)} & sim & \\
+\cod{dt_operacao} & \cod{timestamp} & sim & \\
+\cod{ds_valor_anterior} & \cod{varchar(4000)} & não & \\
+\cod{ds_valor_novo} & \cod{varchar(4000)} & não & \\
+\end{longtable}

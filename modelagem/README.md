@@ -7,8 +7,8 @@ MER na notação de Peter Chen, feito no brModelo (Regra 1).
 | Arquivo | Versão | Situação |
 |---------|--------|----------|
 | `conceitual/mer-conceitual-v1.pdf` | V1, primeira tentativa (34 entidades) | Histórico. Substituída após o feedback de escopo do professor |
-| `conceitual/mer-conceitual-final.*` | V3, 20 entidades e 30 relacionamentos | Em produção: exportação final do brModelo (`.brM3` e imagem) |
-| `logico/` | Modelo lógico relacional | Em produção |
+| `conceitual/mer-conceitual-final.pdf` | Versão final, 20 entidades, 30 relacionamentos e todos os atributos | Atual. Atributos conferidos com as colunas do banco |
+| `logico/` | Modelo lógico relacional | Pendente: completar, corrigir e exportar (ver `relatorio/README.md`) |
 
 Da V1 para a versão final:
 - o escopo caiu de 34 para 20 entidades: subtipos de pagamento, reembolso, políticas, regra de certificação, modalidade, sessão, credenciamento, histórico de status e usuário administrativo viraram atributos, relacionamentos ou foram absorvidos por Auditoria e Pessoa;

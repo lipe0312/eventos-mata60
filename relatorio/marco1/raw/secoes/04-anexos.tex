@@ -1,0 +1,74 @@
+\section{Anexos}
+\label{sec:anexos}
+
+\subsection{Repositório}
+
+Todo o código e o modelo estão no repositório público \repo, sem necessidade de autenticação. A Tabela~\ref{tab:repo} descreve as pastas.
+
+\begin{table}[h!]
+\caption{Estrutura do repositório}\label{tab:repo}
+\centering\small
+\begin{tabular}{@{}l L{10.2cm}@{}}
+\toprule
+Pasta & Conteúdo\\
+\midrule
+\cod{modelagem/} & modelo conceitual (brModelo) nas versões inicial e final, modelo lógico e legenda de cores\\
+\cod{sql/} & scripts de implantação; \cod{sql/main.sql} executa tudo na ordem\\
+\cod{relatorio/} & este relatório em PDF\\
+\cod{docs/} & tutorial de reprodução detalhado\\
+\cod{docker/} & arquivos opcionais para subir PostgreSQL e pgAdmin em contêineres\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Tutorial de reprodução}
+
+A reprodução precisa apenas do PostgreSQL, versão 14 ou superior, e do pgAdmin (Regra 5). Nenhuma extensão é usada. O usuário precisa poder criar bancos e papéis; o superusuário \cod{postgres} atende.
+
+\textbf{Pela linha de comando.} Na raiz do repositório:
+
+\begin{lstlisting}[language={}]
+createdb -U postgres -E UTF8 -T template0 eventos
+psql -U postgres -d eventos -f sql/main.sql
+\end{lstlisting}
+
+A carga leva cerca de 30 segundos. Para conferir as regras e explorar os metadados:
+
+\begin{lstlisting}[language={}]
+psql -U postgres -d eventos -f sql/99_testes/01_restricoes.sql
+psql -U postgres -d eventos -f sql/05_metadados/01_metadados.sql
+\end{lstlisting}
+
+A última linha dos testes deve mostrar \cod{73 | 73 | 0} (casos, aprovados e falhas). No Windows, os mesmos comandos funcionam no SQL Shell (psql).
+
+\textbf{Pelo pgAdmin.} Crie o banco \cod{eventos}, com codificação UTF8 e, como modelo, \cod{template0}. Clique com o botão direito no banco, abra o PSQL Tool e execute:
+
+\begin{lstlisting}[language={}]
+\i '/caminho/para/eventos-mata60/sql/main.sql'
+\end{lstlisting}
+
+O Query Tool não interpreta os comandos do psql usados no script principal, por isso o caminho indicado é o PSQL Tool.
+
+\textbf{Consultas.} Os objetos ficam no schema \cod{eventos}. Para consultar sem prefixo, comece a sessão com \cod{SET SCHEMA 'eventos';}.
+
+\textbf{Recriar do zero.} Os papéis pertencem ao servidor, e não ao banco, então precisam ser removidos junto:
+
+\begin{lstlisting}[language={}]
+dropdb -U postgres eventos
+psql -U postgres -c "DROP ROLE papel_admin, papel_financeiro, papel_credenciamento, papel_organizacao, papel_relatorio"
+\end{lstlisting}
+
+\textbf{Docker, opcional.} Quem preferir contêineres pode usar \cod{docker compose up -d} na raiz do repositório, que sobe PostgreSQL e pgAdmin e executa o script principal na primeira inicialização. Os detalhes estão em \cod{docs/reproducao.md}.
+
+\subsection{Ordem dos scripts}
+
+O arquivo \cod{sql/main.sql} executa, nesta ordem:
+\begin{enumerate}
+  \item \cod{00_init.sql}: cria o schema;
+  \item \cod{01_ddl/}: as 20 tabelas das entidades e as 4 tabelas de junção;
+  \item \cod{02_constraints/}: verificações declarativas, triggers e procedimentos, em onze arquivos por tema;
+  \item \cod{03_populacao/}: nove arquivos de dados sintéticos;
+  \item \cod{04_views/}: visões derivadas, visões de relatório, visão mascarada e papéis.
+\end{enumerate}
+
+Os arquivos \cod{05_metadados/01_metadados.sql} e \cod{99_testes/01_restricoes.sql} são executados à parte.
