@@ -28,3 +28,5 @@
 \ir 03_populacao/09_certificados.sql
 
 \ir 04_views/01_derivadas.sql
+\ir 04_views/02_relatorios.sql
+\ir 04_views/03_acesso.sql
