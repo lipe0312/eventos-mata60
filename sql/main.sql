@@ -4,3 +4,16 @@
 
 \ir 01_ddl/01_entidades.sql
 \ir 01_ddl/02_relacionamentos_nn.sql
+
+\ir 02_constraints/01_checks.sql
+\ir 02_constraints/02_consistencia.sql
+\ir 02_constraints/03_inscricao.sql
+\ir 02_constraints/04_pagamento_documento.sql
+\ir 02_constraints/05_atividade.sql
+\ir 02_constraints/06_publicacao.sql
+\ir 02_constraints/07_certificado.sql
+\ir 02_constraints/08_historico.sql
+\ir 02_constraints/09_cardinalidade_minima.sql
+\ir 02_constraints/10_auditoria.sql
+\ir 02_constraints/11_rotinas.sql
+
