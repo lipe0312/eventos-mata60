@@ -1,3 +1,4 @@
+\encoding UTF8
 SET SCHEMA 'eventos';
 
 SELECT table_name, table_type

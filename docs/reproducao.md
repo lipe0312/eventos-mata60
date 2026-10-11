@@ -1,36 +1,56 @@
 # Reprodução
 
-Stack: PostgreSQL e pgAdmin (Regra 5). O Docker é apenas uma forma de subir essa stack.
+Stack exigida: PostgreSQL e pgAdmin (Regra 5). Versão mínima: PostgreSQL 14, por causa dos procedimentos com corpo `BEGIN ATOMIC`. Testado em PostgreSQL 14 e 16.
 
-## Com Docker
+Nenhuma extensão é necessária. A única linguagem procedural usada é o PL/pgSQL, instalado por padrão.
+
+## 1. PostgreSQL nativo
+
+A partir da raiz do repositório:
 
 ```bash
-git clone <url-do-repositorio>
-cd eventos-mata60
+createdb -U postgres -E UTF8 -T template0 eventos
+psql -U postgres -d eventos -f sql/main.sql
+```
+
+- `sql/main.sql` interrompe na primeira falha (`ON_ERROR_STOP`) e inclui os demais arquivos com caminho relativo (`\ir`). Por isso pode ser executado de qualquer pasta.
+- O script define `eventos` como schema padrão do banco. Depois de reconectar, as tabelas aparecem sem prefixo.
+- Os papéis (`papel_admin`, `papel_financeiro`, `papel_credenciamento`, `papel_organizacao`, `papel_relatorio`) são criados no servidor apenas se ainda não existirem.
+
+Recriar do zero:
+
+```bash
+dropdb -U postgres eventos
+createdb -U postgres -E UTF8 -T template0 eventos
+psql -U postgres -d eventos -f sql/main.sql
+```
+
+## 2. pgAdmin
+
+1. *Servers → Databases → Create → Database*: nome `eventos`; na aba *Definition*, Encoding `UTF8` e Template `template0`.
+2. Botão direito em `eventos` → **PSQL Tool**.
+3. `\i '/caminho/para/eventos-mata60/sql/main.sql'`
+
+O *Query Tool* não interpreta comandos do psql (`\ir`, `\set`). Para usá-lo, abra e execute os arquivos na ordem listada em `sql/main.sql`.
+
+## 3. Docker (opcional)
+
+```bash
 cp .env.example .env          # opcional
 docker compose up -d
 ```
 
-- O PostgreSQL executa `sql/main.sql` na primeira inicialização.
-- pgAdmin: http://localhost:5050 (credenciais em `.env.example`). Registrar o servidor com host `postgres`, porta `5432`.
+- O PostgreSQL executa `sql/main.sql` na primeira inicialização (cerca de 35 segundos).
+- pgAdmin: http://localhost:5050 (credenciais em `.env.example`). Registrar o servidor com host `postgres`, porta `5432`, usuário e senha `eventos`.
 - Recriar do zero: `docker compose down -v && docker compose up -d`.
 
-## Sem Docker
-
-Em um PostgreSQL 16 local, a partir da raiz do repositório:
+## 4. Testes e metadados
 
 ```bash
-createdb eventos
-psql -d eventos -f sql/main.sql
+psql -U postgres -d eventos -f sql/99_testes/01_restricoes.sql
+psql -U postgres -d eventos -f sql/05_metadados/01_metadados.sql
 ```
 
-## Testes e metadados
+No Docker, prefixe com `docker compose exec postgres` e use os caminhos `/sql/...` com o usuário `eventos`.
 
-Após a carga:
-
-```bash
-docker compose exec postgres psql -U eventos -d eventos -f /sql/99_testes/01_restricoes.sql
-docker compose exec postgres psql -U eventos -d eventos -f /sql/05_metadados/01_metadados.sql
-```
-
-Pelo pgAdmin, os mesmos arquivos podem ser abertos no Query Tool. O banco já usa o schema `eventos` como padrão.
+O arquivo de testes roda dentro de uma transação desfeita ao final (`ROLLBACK`). Ele lista cada caso como `OK` ou `FALHA` e termina com o total; o esperado é `73 | 73 | 0`.
