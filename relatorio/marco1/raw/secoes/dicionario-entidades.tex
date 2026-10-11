@@ -31,6 +31,7 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{3. Edição} (fraca, dona: Evento)}\\
 \midrule
+\cod{cp_id_edicao} & \cod{bigint} & sim & identificador\\
 \cod{ano_edicao} & \cod{smallint} & sim & identificador parcial\\
 \cod{nr_edicao} & \cod{int} & não & \\
 \cod{dt_inicio_evento} & \cod{date} & sim & \\
@@ -51,6 +52,7 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{4. Categoria de Inscrição} (fraca, dona: Edição)}\\
 \midrule
+\cod{cp_id_categoria} & \cod{bigint} & sim & identificador\\
 \cod{nm_categoria} & \cod{varchar(100)} & sim & identificador parcial\\
 \cod{ind_exige_comprovacao} & \cod{boolean} & sim & \\
 \cod{ind_categoria_autor} & \cod{boolean} & sim & \\
@@ -58,18 +60,21 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{5. Faixa de Inscrição} (fraca, dona: Edição)}\\
 \midrule
+\cod{cp_id_faixa} & \cod{bigint} & sim & identificador\\
 \cod{nm_faixa} & \cod{varchar(60)} & sim & identificador parcial\\
 \cod{dt_inicio_faixa} & \cod{timestamp} & sim & \\
 \cod{dt_fim_faixa} & \cod{timestamp} & sim & \\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{6. Preço} (associativa (Categoria × Faixa))}\\
 \midrule
+\cod{cp_id_preco} & \cod{bigint} & sim & identificador\\
 \cod{tp_associacao} & \cod{varchar(20)} & sim & identificador parcial\\
 \cod{vl_inscricao} & \cod{numeric(10,2)} & sim & \\
 \cod{vl_associacao} & \cod{numeric(10,2)} & não & \\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{7. Atividade} (fraca, dona: Edição)}\\
 \midrule
+\cod{cp_id_atividade} & \cod{bigint} & sim & identificador\\
 \cod{nm_atividade} & \cod{varchar(200)} & sim & identificador parcial\\
 \cod{dt_inicio} & \cod{timestamp} & sim & identificador parcial\\
 \cod{tp_atividade} & \cod{varchar(20)} & sim & \\
@@ -91,12 +96,14 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{9. Vínculo Institucional} (associativa (Pessoa × Instituição))}\\
 \midrule
+\cod{cp_id_vinculo} & \cod{bigint} & sim & identificador\\
 \cod{dt_inicio_vinculo} & \cod{date} & sim & identificador parcial\\
 \cod{tp_vinculo} & \cod{varchar(20)} & sim & \\
 \cod{dt_fim_vinculo} & \cod{date} & não & \\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{10. Benefício} (fraca, dona: Instituição)}\\
 \midrule
+\cod{cp_id_beneficio} & \cod{bigint} & sim & identificador\\
 \cod{tp_beneficio} & \cod{varchar(20)} & sim & identificador parcial\\
 \cod{dt_inicio_vigencia} & \cod{date} & sim & identificador parcial\\
 \cod{dt_fim_vigencia} & \cod{date} & sim & \\
@@ -106,6 +113,7 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{11. Período de Associação} (fraca, dona: Pessoa)}\\
 \midrule
+\cod{cp_id_periodo_associacao} & \cod{bigint} & sim & identificador\\
 \cod{dt_inicio_associacao} & \cod{date} & sim & identificador parcial\\
 \cod{dt_fim_associacao} & \cod{date} & sim & \\
 \midrule
@@ -121,6 +129,7 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{13. Inscrição em Atividade} (associativa (Inscrição × Atividade))}\\
 \midrule
+\cod{cp_id_inscricao_atividade} & \cod{bigint} & sim & identificador\\
 \cod{dt_inclusao} & \cod{timestamp} & sim & \\
 \cod{status_inscricao_atividade} & \cod{varchar(20)} & sim & \\
 \cod{dt_expira_reserva} & \cod{timestamp} & não & \\
@@ -129,6 +138,7 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{14. Item Financeiro} (fraca, dona: Inscrição)}\\
 \midrule
+\cod{cp_id_item_financeiro} & \cod{bigint} & sim & identificador\\
 \cod{nr_item} & \cod{smallint} & sim & identificador parcial\\
 \cod{tp_item} & \cod{varchar(20)} & sim & \\
 \cod{vl_item} & \cod{numeric(10,2)} & sim & \\
@@ -137,6 +147,7 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{15. Pagamento} (fraca, dona: Inscrição)}\\
 \midrule
+\cod{cp_id_pagamento} & \cod{bigint} & sim & identificador\\
 \cod{dt_criacao} & \cod{timestamp} & sim & identificador parcial\\
 \cod{tp_pagamento} & \cod{varchar(15)} & sim & \\
 \cod{vl_pagamento} & \cod{numeric(10,2)} & sim & \\
@@ -149,6 +160,7 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{16. Documento de Comprovação} (fraca, dona: Inscrição)}\\
 \midrule
+\cod{cp_id_documento} & \cod{bigint} & sim & identificador\\
 \cod{dt_envio} & \cod{timestamp} & sim & identificador parcial\\
 \cod{tp_documento} & \cod{varchar(30)} & sim & \\
 \cod{status_documento} & \cod{varchar(10)} & sim & \\
@@ -158,6 +170,7 @@ Atributo & Tipo & Obrigatório & Chave\\
 \midrule
 \multicolumn{4}{@{}l}{\textbf{17. Trabalho Científico} (fraca, dona: Edição)}\\
 \midrule
+\cod{cp_id_trabalho} & \cod{bigint} & sim & identificador\\
 \cod{cd_trabalho_externo} & \cod{varchar(50)} & sim & identificador parcial\\
 \cod{titulo_trabalho} & \cod{varchar(500)} & sim & \\
 \cod{tp_trabalho} & \cod{varchar(20)} & sim & \\
