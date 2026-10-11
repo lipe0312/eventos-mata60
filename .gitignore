@@ -1,0 +1,13 @@
+# Ferramentas e sistema
+.claude/
+.DS_Store
+.vscode/
+.idea/
+
+# Ambiente local
+.env
+
+# Temporários
+*.tmp
+*.log
+*~
