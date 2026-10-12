@@ -16,20 +16,20 @@ O objetivo geral é construir um banco de dados relacional que sustente o ciclo 
 
 Os objetivos específicos acompanham os processos do caso:
 \begin{enumerate}
-  \item representar eventos, edições, eventos co-localizados e a oferta de cada edição (categorias, faixas de preço e atividades);
-  \item calcular e congelar o valor devido por inscrição, separando inscrição, associação, atividades, taxas de publicação e descontos;
-  \item controlar a validação de documentos comprobatórios antes de autorizar o pagamento;
-  \item registrar tentativas de pagamento, cancelamentos e reembolsos segundo a política de cada edição;
-  \item controlar a capacidade das atividades, inclusive quando várias pessoas disputam a última vaga;
-  \item aplicar e limitar os benefícios de instituições associadas;
-  \item verificar a cobertura de trabalhos científicos por inscrições de autores;
-  \item registrar credenciamento e presença e emitir certificados apenas para participantes aptos;
+  \item representar eventos, edições, eventos co-localizados e a oferta de cada edição (categorias, faixas de preço e atividades),
+  \item calcular e congelar o valor devido por inscrição, separando inscrição, associação, atividades, taxas de publicação e descontos,
+  \item controlar a validação de documentos comprobatórios antes de autorizar o pagamento,
+  \item registrar tentativas de pagamento, cancelamentos e reembolsos segundo a política de cada edição,
+  \item controlar a capacidade das atividades, inclusive quando várias pessoas disputam a última vaga,
+  \item aplicar e limitar os benefícios de instituições associadas,
+  \item verificar a cobertura de trabalhos científicos por inscrições de autores,
+  \item registrar credenciamento e presença e emitir certificados apenas para participantes aptos,
   \item guardar a versão de cada termo aceito, a auditoria das operações relevantes e regras de acesso a dados pessoais.
 \end{enumerate}
 
 \subsection{Extensão proposta}
 
-O enunciado pede que a equipe estenda o caso com requisitos próprios. A Tabela~\ref{tab:re} lista os 16 requisitos estendidos (RE) que ficaram no projeto. Os de RE1 a RE10 surgiram da leitura crítica do caso, ainda na primeira versão do modelo. Os de RE11 a RE17 apareceram durante a revisão do escopo, quando o grupo percebeu lacunas que o modelo reduzido precisava cobrir. O RE7 foi retirado no corte de escopo e não entra na contagem; mantivemos a numeração original para que cada requisito possa ser rastreado desde a primeira versão, e a justificativa da retirada está na Tabela~\ref{tab:simplificados}. A maior parte dos requisitos foi proposta em discussão do grupo; a coluna Proposto por indica quando a proposta partiu de um integrante.
+O enunciado pede que a equipe estenda o caso com requisitos próprios. A Tabela~\ref{tab:re} lista os 16 requisitos estendidos (RE) que ficaram no projeto. Os de RE1 a RE10 surgiram da leitura crítica do caso, ainda na primeira versão do modelo. Os de RE11 a RE17 apareceram durante a revisão do escopo, quando o grupo percebeu lacunas que o modelo reduzido precisava cobrir. O RE7 foi retirado no corte de escopo e não entra na contagem. Mantivemos a numeração original para que cada requisito possa ser rastreado desde a primeira versão, e a justificativa da retirada está na Tabela~\ref{tab:simplificados}. A maior parte dos requisitos foi proposta em discussão do grupo. A coluna Proposto por indica quando a proposta partiu de um integrante.
 
 \begin{longtable}{@{}l L{4.9cm} L{4.8cm} L{2.8cm}@{}}
 \caption{Requisitos estendidos propostos pelo grupo}\label{tab:re}\\
@@ -46,9 +46,9 @@ RE & Requisito & Como o banco atende & Proposto por\\
 RE1 & O valor cobrado fica congelado e aponta para o preço de origem & item financeiro com \cod{vl_item} e inscrição ligada ao preço (Enquadra) & Grupo\\
 RE2 & O preço fica reservado por um prazo e expira depois dele & \cod{nr_dias_reserva} na edição, \cod{dt_validade_preco} na inscrição e situação EXPIRADA & Grupo\\
 RE3 & Uma inscrição libera as edições vinculadas a ela & derivado do autorrelacionamento Agrega (simplificado) & Grupo\\
-RE4 & Reserva de vaga em atividade com prazo e lista de espera & \cod{dt_expira_reserva} e situação RESERVADA; lista de espera retirada (simplificado) & Grupo\\
+RE4 & Reserva de vaga em atividade com prazo e lista de espera & \cod{dt_expira_reserva} e situação RESERVADA, sem lista de espera (simplificado) & Grupo\\
 RE5 & Troca de categoria com recálculo e histórico & novo preço, itens antigos marcados como SUBSTITUIDO e registro na auditoria & Grupo\\
-RE6 & Limites de benefício por escopo e controle de uso individual & limites por período e por edição; escopo por evento retirado (simplificado) & Grupo\\
+RE6 & Limites de benefício por escopo e controle de uso individual & limites por período e por edição, sem escopo por evento (simplificado) & Grupo\\
 RE8 & Anonimização sem perda de dados financeiros & \cod{ind_anonimizada} e procedimento de anonimização & Filipe Santana\\
 RE9 & Cobertura de trabalho explícita e política de publicação & relacionamento Cobre, política na edição e liberação da cobertura no cancelamento & Grupo\\
 RE10 & Perfis de acesso por papel & papéis, permissões por coluna e visão mascarada & Filipe Santana\\
@@ -58,7 +58,7 @@ RE13 & Distribuição dos participantes por UF & \cod{uf_pessoa} & Matheus Fran�
 RE14 & Tipo de vínculo com a instituição & \cod{tp_vinculo} & Grupo\\
 RE15 & Reembolso registrado no próprio pagamento & \cod{vl_reembolso}, \cod{dt_reembolso} e situação ESTORNADO & Filipe Santana\\
 RE16 & Certificado revogável e reemitido sem perder o histórico & \cod{status_certificado} (VALIDO ou REVOGADO) & Túlio Melo\\
-RE17 & Atividade restrita a algumas categorias & relacionamento Restringe; atividade sem restrição fica aberta a todas & Felipe Schuler\\
+RE17 & Atividade restrita a algumas categorias & relacionamento Restringe. Atividade sem restrição fica aberta a todas & Felipe Schuler\\
 \end{longtable}
 
 \subsection{Minimundo}
@@ -71,14 +71,14 @@ Pessoas têm cadastro único, com CPF ou passaporte, e podem ter períodos de as
 
 Uma inscrição pertence a uma pessoa e se enquadra em um preço. Ela passa pelas situações iniciada, aguardando validação, aguardando pagamento, paga, concluída, cancelada ou expirada. O valor devido é formado por itens financeiros, gerados no momento da cobrança e nunca alterados depois. A inscrição pode ter documentos comprobatórios, tentativas de pagamento, atividades adicionais selecionadas e respostas aos termos vigentes.
 
-Atividades têm capacidade e preço próprios e podem ser restritas a algumas categorias. Trabalhos científicos pertencem a uma edição, têm um ou mais autores e podem ser cobertos pela inscrição de um autor; o trabalho que passa do limite da inscrição gera uma taxa extra. Durante o evento são registrados o credenciamento e a presença em atividades. Certificados são emitidos para pessoas aptas e podem ser revogados e reemitidos. As operações relevantes ficam registradas na auditoria, com o responsável quando houver.
+Atividades têm capacidade e preço próprios e podem ser restritas a algumas categorias. Trabalhos científicos pertencem a uma edição, têm um ou mais autores e podem ser cobertos pela inscrição de um autor. O trabalho que passa do limite da inscrição gera uma taxa extra. Durante o evento são registrados o credenciamento e a presença em atividades. Certificados são emitidos para pessoas aptas e podem ser revogados e reemitidos. As operações relevantes ficam registradas na auditoria, com o responsável quando houver.
 
 \subsection{Delimitação do escopo}
 \label{sec:escopo}
 
 A primeira versão do modelo tinha 34 entidades (Figura~\ref{fig:merv1}). Ela cobria o caso inteiro, mas tratava como entidade muita coisa que era parâmetro, subtipo ou registro duplicado, e desenhava as ligações como atributos de chave estrangeira, sem os losangos de relacionamento que a notação de Chen exige. O professor indicou que o escopo estava grande demais e sugeriu algo entre 10 e 15 entidades, sem rigidez.
 
-O grupo avaliou cada entidade com uma pergunta: ela tem identidade e ciclo de vida próprios no minimundo, ou é uma característica de outra entidade? O que era característica virou atributo; o que era ligação virou relacionamento. O resultado foram 20 entidades. O grupo não desceu até 15 porque as cinco restantes sustentam requisitos do próprio enunciado: sem Preço não há como combinar categoria, faixa e associação (RF6, RF7); sem Item Financeiro não há como identificar a origem de cada valor (RF12); sem Período de Associação não se sabe a situação do participante em uma data (RF4); sem Benefício não há limites por instituição (RF17); sem Auditoria não há rastreabilidade (RF25).
+O grupo avaliou cada entidade com uma pergunta: ela tem identidade e ciclo de vida próprios no minimundo, ou é uma característica de outra entidade? O que era característica virou atributo. O que era ligação virou relacionamento. O resultado foram 20 entidades. O grupo não desceu até 15 porque as cinco restantes sustentam requisitos do próprio enunciado: sem Preço não há como combinar categoria, faixa e associação (RF6, RF7). Sem Item Financeiro não há como identificar a origem de cada valor (RF12). Sem Período de Associação não se sabe a situação do participante em uma data (RF4). Sem Benefício não há limites por instituição (RF17). Sem Auditoria não há rastreabilidade (RF25).
 
 A Tabela~\ref{tab:removidas} mostra o destino das entidades retiradas da primeira versão. A Tabela~\ref{tab:adicionadas} lista as entidades que não estão na especificação inicial do enunciado e a Tabela~\ref{tab:atributos} resume os atributos alterados em relação a ela.
 
@@ -99,9 +99,9 @@ Reembolso & \cod{vl_reembolso}, \cod{dt_reembolso} e situação ESTORNADO em Pag
 Política de Reembolso & \cod{nr_dias_limite_reembolso} e \cod{pc_reembolso} em Edição & O RF15 define a política por edição.\\
 Regra de Certificação & \cod{ind_exige_credenciamento} e \cod{pc_frequencia_minima} em Edição & É um parâmetro da edição, sem ciclo de vida próprio.\\
 Modalidade de Inscrição & \cod{tp_associacao} em Preço & É uma das dimensões do preço (RF6, RF7).\\
-Sessão e Credenciamento & \cod{dt_credenciamento} em Inscrição e \cod{dt_presenca} em Inscrição em Atividade & A atividade já tem início e fim; a sessão é tratada como atividade (RF20, RF21).\\
+Sessão e Credenciamento & \cod{dt_credenciamento} em Inscrição e \cod{dt_presenca} em Inscrição em Atividade & A atividade já tem início e fim, por isso a sessão é tratada como atividade (RF20, RF21).\\
 Histórico de Status & Auditoria & O RF9 e o RF25 usam o mesmo mecanismo de registro.\\
-Usuário Administrativo & Pessoa e relacionamento Organiza (\cod{tp_papel}) & Quem administra também é pessoa; a mesma estrutura atende o RF24 e o responsável do RF25.\\
+Usuário Administrativo & Pessoa e relacionamento Organiza (\cod{tp_papel}) & Quem administra também é pessoa, e a mesma estrutura atende o RF24 e o responsável do RF25.\\
 Uso de Benefício & Relacionamento Facilita (\cod{dt_uso_beneficio} em Inscrição) & Uma inscrição usa no máximo um benefício.\\
 Cobertura de Trabalho & Relacionamento Cobre & Um trabalho é coberto por no máximo uma inscrição.\\
 Vínculo Institucional repetido & Uma única entidade associativa & A entidade aparecia duas vezes no diagrama.\\
@@ -152,7 +152,7 @@ Todas & Chaves com \cod{GENERATED ALWAYS AS IDENTITY} e textos longos com \cod{v
 \cod{tbl_certificado} & Inclui \cod{status_certificado} para revogação e reemissão (RE16).\\
 \end{longtable}
 
-Alguns requisitos foram atendidos com simplificação, e um requisito estendido foi retirado. A Tabela~\ref{tab:simplificados} registra cada caso. Os sete requisitos novos (RE11 a RE17) estão na Tabela~\ref{tab:re}; todos nasceram de atributos que o modelo reduzido já precisava ter e que o grupo tornou explícitos como requisito.
+Alguns requisitos foram atendidos com simplificação, e um requisito estendido foi retirado. A Tabela~\ref{tab:simplificados} registra cada caso. Os sete requisitos novos (RE11 a RE17) estão na Tabela~\ref{tab:re}. Todos nasceram de atributos que o modelo reduzido já precisava ter e que o grupo tornou explícitos como requisito.
 
 \begin{longtable}{@{}l L{3.4cm} L{9.6cm}@{}}
 \caption{Requisitos simplificados ou retirados}\label{tab:simplificados}\\
@@ -169,11 +169,11 @@ Req. & Situação & Justificativa\\
 RF14 & simplificado & As formas de pagamento são um tipo com atributos opcionais e restrições por tipo, sem uma entidade para cada forma.\\
 RF15 & simplificado & A política de reembolso é uma faixa única por edição (percentual e prazo), sem tabela escalonada por data.\\
 RF21 & simplificado & O enunciado fala em várias ocorrências de presença. O modelo guarda uma presença por atividade e trata cada sessão como atividade, o que evita mais uma entidade e ainda permite calcular a frequência.\\
-RF22 & simplificado & Os critérios de certificado ficam na edição. Não há critério próprio por atividade; o certificado de atividade exige a presença registrada.\\
+RF22 & simplificado & Os critérios de certificado ficam na edição. Não há critério próprio por atividade. O certificado de atividade exige a presença registrada.\\
 RF27 & simplificado & As políticas da edição não têm versões. Para compensar, elas ficam bloqueadas depois da abertura das inscrições, e os valores já cobrados ficam congelados nos itens.\\
-RE3 & simplificado & O acesso às edições agregadas é derivado do relacionamento Agrega; não há escolha de eventos por modalidade.\\
+RE3 & simplificado & O acesso às edições agregadas é derivado do relacionamento Agrega, sem escolha de eventos por modalidade.\\
 RE4 & simplificado & A reserva de vaga tem prazo, mas a lista de espera foi retirada.\\
-RE6 & simplificado & Os limites valem por período e por edição; o limite por evento foi retirado.\\
+RE6 & simplificado & Os limites valem por período e por edição. O limite por evento foi retirado.\\
 RE7 & retirado & As regras de certificação deixaram de ser entidade versionada e viraram atributos da edição, protegidos contra alteração depois da abertura das inscrições.\\
 \end{longtable}
 
@@ -194,35 +194,35 @@ RF & No modelo & No banco\\
 \bottomrule
 \endfoot
 RF1 & Edição é entidade fraca de Evento (Realiza) & edição única por evento e ano\\
-RF2 & Autorrelacionamento Agrega em Edição & agregação de um nível só, sem ciclo; visão \cod{vw_acesso_inscricao}\\
-RF3 & Pessoa com cadastro único; Efetua liga pessoa e inscrições & e-mail, CPF e passaporte com país únicos; CPF ou passaporte obrigatório\\
-RF4 & Período de Associação, fraca de Pessoa & períodos sem sobreposição; preço coerente com a situação na data; \cod{vw_situacao_associacao}\\
+RF2 & Autorrelacionamento Agrega em Edição & agregação de um nível só, sem ciclo, e visão \cod{vw_acesso_inscricao}\\
+RF3 & Pessoa com cadastro único, e Efetua liga pessoa e inscrições & e-mail, CPF e passaporte com país únicos. CPF ou passaporte obrigatório\\
+RF4 & Período de Associação, fraca de Pessoa & períodos sem sobreposição, preço coerente com a situação na data e \cod{vw_situacao_associacao}\\
 RF5 & Categoria, fraca de Edição & nome único dentro da edição\\
-RF6 & Faixa, fraca de Edição, e Preço como associativa & faixas sem sobreposição; faixa vigente na data da inscrição\\
-RF7 & \cod{tp_associacao} e \cod{vl_associacao} em Preço; Origina & item de associação separado; período criado ao pagar\\
-RF8 & Documento, fraca de Inscrição (Garante), e Analisa & documento nasce pendente, muda uma vez e não é excluído; pagamento só com documento aprovado\\
-RF9 & \cod{status_inscricao} com sete situações & transições controladas por trigger; histórico na auditoria\\
-RF10 & Inscrição em Atividade e Restringe & atividade da mesma edição ou de edição agregada; categoria permitida\\
-RF11 & \cod{nr_capacidade} em Atividade; ocupação derivada & contagem de reservas e confirmações antes de aceitar\\
-RF12 & Item Financeiro (Compõe, Tarifa, Sobretaxa) & itens gerados por trigger; \cod{vw_valor_inscricao}\\
-RF13 & Pagamento, fraca de Inscrição (Transaciona) & quitação só com pagamentos confirmados; \cod{vw_saldo_inscricao}\\
+RF6 & Faixa, fraca de Edição, e Preço como associativa & faixas sem sobreposição e faixa vigente na data da inscrição\\
+RF7 & \cod{tp_associacao} e \cod{vl_associacao} em Preço, e Origina & item de associação separado e período criado ao pagar\\
+RF8 & Documento, fraca de Inscrição (Garante), e Analisa & documento nasce pendente, muda uma vez e não é excluído. Pagamento só com documento aprovado\\
+RF9 & \cod{status_inscricao} com sete situações & transições controladas por trigger e histórico na auditoria\\
+RF10 & Inscrição em Atividade e Restringe & atividade da mesma edição ou de edição agregada e categoria permitida\\
+RF11 & \cod{nr_capacidade} em Atividade e ocupação derivada & contagem de reservas e confirmações antes de aceitar\\
+RF12 & Item Financeiro (Compõe, Tarifa, Sobretaxa) & itens gerados por trigger e \cod{vw_valor_inscricao}\\
+RF13 & Pagamento, fraca de Inscrição (Transaciona) & quitação só com pagamentos confirmados e \cod{vw_saldo_inscricao}\\
 RF14 & \cod{tp_pagamento} e atributos opcionais & vencimento obrigatório para boleto e empenho\\
-RF15 & Política de reembolso na Edição; situações de cancelamento & cancelamento em cascata nos itens e atividades; reembolso calculado pela política\\
+RF15 & Política de reembolso na Edição e situações de cancelamento & cancelamento em cascata nos itens e nas atividades. Reembolso calculado pela política\\
 RF16 & Vínculo Institucional com início e fim & vínculo com período\\
 RF17 & Benefício, fraca de Instituição, e Facilita & vigência, instituição associada, vínculo vigente e limites verificados por trigger\\
 RF18 & Trabalho, fraca de Edição, e Assina & pelo menos um autor por trabalho\\
-RF19 & Cobre e Sobretaxa & cobertura só por autor em categoria de autor; excedente gera taxa\\
+RF19 & Cobre e Sobretaxa & cobertura só por autor em categoria de autor. Excedente gera taxa\\
 RF20 & \cod{dt_credenciamento} em Inscrição & credenciamento só em inscrição paga ou concluída\\
 RF21 & \cod{dt_presenca} em Inscrição em Atividade & presença só em atividade confirmada\\
-RF22 & Certificado com Certifica, Emite e Atesta & elegibilidade por tipo; um certificado válido por finalidade\\
-RF23 & Termo com uma linha por versão; Responde & versão publicada não muda; resposta não é alterada\\
+RF22 & Certificado com Certifica, Emite e Atesta & elegibilidade por tipo e um certificado válido por finalidade\\
+RF23 & Termo com uma linha por versão, e Responde & versão publicada não muda e resposta não é alterada\\
 RF24 & Organiza com \cod{tp_papel} & chave (pessoa, edição, papel)\\
 RF25 & Auditoria e Executa & trigger em inscrição, documento, pagamento e certificado\\
 RF26 & Consultas sobre o modelo & doze visões de relatório (Seção~\ref{sec:relatorios})\\
 RF27 & Valores congelados, preço e termo imutáveis & bloqueio de alteração em preço usado, termo, auditoria e políticas\\
-RF28 & Chaves, domínios e regras entre linhas & PK, FK, UNIQUE, CHECK e triggers; 73 testes\\
+RF28 & Chaves, domínios e regras entre linhas & PK, FK, UNIQUE, CHECK e triggers, com 73 testes\\
 RF29 & Inscrição em Atividade & bloqueio da linha da atividade durante a inscrição\\
-RF30 & Poucos dados pessoais; documento só com caminho & papéis, permissões por coluna, visão mascarada e anonimização\\
+RF30 & Poucos dados pessoais e documento só com caminho & papéis, permissões por coluna, visão mascarada e anonimização\\
 \end{longtable}
 
 \subsection{Questões levantadas pelo enunciado}
@@ -241,10 +241,10 @@ Questão & Decisão\\
 \endhead
 \bottomrule
 \endfoot
-Inscrição iniciada em uma faixa e paga depois do fim dela & Vale a faixa vigente na data da inscrição. O preço fica reservado por \cod{nr_dias_reserva} dias; se a inscrição não for paga até \cod{dt_validade_preco}, ela expira.\\
+Inscrição iniciada em uma faixa e paga depois do fim dela & Vale a faixa vigente na data da inscrição. O preço fica reservado por \cod{nr_dias_reserva} dias. Se a inscrição não for paga até \cod{dt_validade_preco}, ela expira.\\
 Preço calculado na hora ou registrado & Registrado. Os itens financeiros guardam o valor no momento da cobrança.\\
 Histórico quando a organização muda um preço & Preço já usado não pode ser alterado nem excluído. Uma mudança é um novo preço.\\
-Inscrição com acesso a vários eventos co-localizados & Autorrelacionamento Agrega entre edições; o acesso é derivado por consulta.\\
+Inscrição com acesso a vários eventos co-localizados & Autorrelacionamento Agrega entre edições. O acesso é derivado por consulta.\\
 Duas inscrições disputando a última vaga & A linha da atividade é bloqueada durante a inscrição e a ocupação é contada antes de aceitar.\\
 Troca de categoria depois de enviar comprovante & Permitida enquanto a inscrição não está paga. A troca muda o preço, marca os itens antigos como SUBSTITUIDO e cria os novos.\\
 Pagamentos já feitos quando a categoria muda & Como a troca só ocorre antes da quitação, os pagamentos confirmados continuam valendo e são descontados do novo saldo.\\
@@ -252,7 +252,7 @@ Pagamentos parciais ou múltiplos & A inscrição aceita vários pagamentos e pa
 Pagamento correspondente à obrigação certa & O pagamento pertence a uma inscrição, e o código da transação externa é único.\\
 Benefícios com limites por ano, evento e instituição & O benefício pertence à instituição e tem limite por período e por edição. O limite por evento foi retirado (RE6).\\
 Trabalho coberto por inscrição de autor & A cobertura só é aceita se a inscrição for de um autor, da mesma edição e em categoria de autor.\\
-Trabalho com autores em categorias diferentes & Basta uma inscrição de autor em categoria de autor; cada trabalho tem no máximo uma inscrição que o cobre.\\
+Trabalho com autores em categorias diferentes & Basta uma inscrição de autor em categoria de autor. Cada trabalho tem no máximo uma inscrição que o cobre.\\
 Autor responsável pelo pagamento cancela a inscrição & A cobertura é liberada e o trabalho volta a aparecer como sem cobertura.\\
 Presença suficiente para cada certificado & Participação exige credenciamento, quando a edição pede, e frequência mínima. Atividade exige presença registrada. Autoria e organização exigem o vínculo correspondente.\\
 Mudança de regra de certificação e certificados já emitidos & As políticas da edição ficam bloqueadas depois da abertura das inscrições, e um certificado emitido só pode ser revogado.\\
@@ -262,7 +262,7 @@ Regras por CHECK, UNIQUE e FK & Domínios, intervalos e unicidade dentro da linh
 Regras por transação, trigger ou procedimento & Regras que comparam linhas ou tabelas, como sobreposição, capacidade, limites e transições de situação, ficam em triggers. Expiração e anonimização são procedimentos.\\
 Consultas que pedem índices & Ficam para o Marco 2, que trata de otimização. No Marco 1 o banco tem só os índices criados pelas chaves primárias e restrições de unicidade.\\
 Dados pessoais com mais controle & CPF, passaporte, e-mail e nascimento. Papéis sem acesso direto a eles usam uma visão mascarada.\\
-Exclusão ou anonimização sem perder dados financeiros & A pessoa é anonimizada, e não excluída; inscrições, itens e pagamentos continuam íntegros.\\
+Exclusão ou anonimização sem perder dados financeiros & A pessoa é anonimizada, e não excluída. Inscrições, itens e pagamentos continuam íntegros.\\
 \end{longtable}
 
 \subsection{Sistematização entre entidades, relacionamentos e requisitos}
@@ -281,24 +281,24 @@ Entidade & Relacionamentos & Requisitos\\
 \endhead
 \bottomrule
 \endfoot
-Pessoa & Efetua, Vínculo Institucional, Associa-se, Analisa, Assina, Organiza, Certifica, Executa & RF3, RF4, RF8, RF16, RF18, RF22, RF24, RF25, RF30; RE8, RE13\\
+Pessoa & Efetua, Vínculo Institucional, Associa-se, Analisa, Assina, Organiza, Certifica, Executa & RF3, RF4, RF8, RF16, RF18, RF22, RF24, RF25, RF30, RE8, RE13\\
 Evento & Realiza & RF1\\
-Edição & Realiza, Agrega, Oferece, Estabelece, Programa, Publica, Organiza, Emite & RF1, RF2, RF5, RF6, RF10, RF15, RF18, RF22, RF24, RF27; RE2, RE3, RE9\\
-Categoria de Inscrição & Oferece, Preço, Restringe & RF5, RF8, RF10; RE17\\
+Edição & Realiza, Agrega, Oferece, Estabelece, Programa, Publica, Organiza, Emite & RF1, RF2, RF5, RF6, RF10, RF15, RF18, RF22, RF24, RF27, RE2, RE3, RE9\\
+Categoria de Inscrição & Oferece, Preço, Restringe & RF5, RF8, RF10, RE17\\
 Faixa de Inscrição & Estabelece, Preço & RF6\\
-Preço & associativa entre Categoria e Faixa; Enquadra & RF6, RF7, RF27; RE1, RE5\\
-Atividade & Programa, Inscrição em Atividade, Restringe, Atesta & RF10, RF11, RF22; RE17\\
+Preço & associativa entre Categoria e Faixa, e Enquadra & RF6, RF7, RF27, RE1, RE5\\
+Atividade & Programa, Inscrição em Atividade, Restringe, Atesta & RF10, RF11, RF22, RE17\\
 Instituição & Vínculo Institucional, Recebe & RF16, RF17\\
-Vínculo Institucional & associativa entre Pessoa e Instituição & RF16; RE14\\
-Benefício & Recebe, Facilita & RF17; RE6\\
+Vínculo Institucional & associativa entre Pessoa e Instituição & RF16, RE14\\
+Benefício & Recebe, Facilita & RF17, RE6\\
 Período de Associação & Associa-se, Origina & RF4, RF7\\
-Inscrição & Efetua, Enquadra, Facilita, Origina, Inscrição em Atividade, Compõe, Transaciona, Garante, Cobre, Responde & RF3, RF9, RF12, RF13, RF15, RF19, RF20, RF23; RE2, RE5, RE11\\
-Inscrição em Atividade & associativa entre Inscrição e Atividade; Tarifa & RF10, RF11, RF21, RF29; RE4\\
-Item Financeiro & Compõe, Tarifa, Sobretaxa & RF12, RF19, RF27; RE1, RE5\\
-Pagamento & Transaciona & RF13, RF14, RF15; RE15\\
-Documento de Comprovação & Garante, Analisa & RF8; RE12\\
-Trabalho Científico & Publica, Cobre, Assina, Sobretaxa & RF18, RF19; RE9\\
+Inscrição & Efetua, Enquadra, Facilita, Origina, Inscrição em Atividade, Compõe, Transaciona, Garante, Cobre, Responde & RF3, RF9, RF12, RF13, RF15, RF19, RF20, RF23, RE2, RE5, RE11\\
+Inscrição em Atividade & associativa entre Inscrição e Atividade, e Tarifa & RF10, RF11, RF21, RF29, RE4\\
+Item Financeiro & Compõe, Tarifa, Sobretaxa & RF12, RF19, RF27, RE1, RE5\\
+Pagamento & Transaciona & RF13, RF14, RF15, RE15\\
+Documento de Comprovação & Garante, Analisa & RF8, RE12\\
+Trabalho Científico & Publica, Cobre, Assina, Sobretaxa & RF18, RF19, RE9\\
 Termo & Responde & RF23\\
-Certificado & Certifica, Emite, Atesta & RF22; RE16\\
+Certificado & Certifica, Emite, Atesta & RF22, RE16\\
 Auditoria & Executa & RF9, RF25\\
 \end{longtable}

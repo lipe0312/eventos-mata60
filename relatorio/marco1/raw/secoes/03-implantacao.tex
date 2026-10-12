@@ -75,6 +75,7 @@ CREATE TABLE tbl_autoria (
 Não usamos \cod{ON DELETE CASCADE} nem valores padrão. A exclusão em cascata apagaria histórico que o RF27 manda preservar, e nenhum valor padrão foi definido no modelo.
 
 \subsection{Nomes e tipos}
+\label{sec:nomes}
 
 O grupo adotou um padrão único de nomes, aplicado a todos os objetos do banco. Nas tabelas e colunas: \cod{tbl_} para tabelas, \cod{cp_} para chave primária, \cod{ce_} para chave estrangeira, \cod{nm_} para nome, \cod{ds_} para descrição, \cod{sg_} para sigla, \cod{cd_} para código, \cod{dt_} para data ou instante, \cod{nr_} para número ou quantidade, \cod{vl_} para valor monetário, \cod{ind_} para indicador lógico e \cod{tp_} ou \cod{status_} para domínios fechados. e \cod{pc_} para percentuais. As restrições têm nome próprio com os prefixos \cod{pk_}, \cod{fk_}, \cod{uq_} e \cod{ck_}, o que deixa as mensagens de erro legíveis e facilita a consulta aos metadados. Os demais objetos usam \cod{vw_} para visões, \cod{fn_} para funções, \cod{tg_} para triggers, \cod{prc_} para procedimentos e \cod{papel_} para papéis de acesso.
 
@@ -134,9 +135,9 @@ Arquivo & Qtd. & Regras\\
 \endhead
 \bottomrule
 \endfoot
-\cod{02_consistencia} & 7 & faixas e períodos de associação sem sobreposição; preço com categoria e faixa da mesma edição; agregação de um nível; restrição de atividade da mesma edição; origem do item coerente com a inscrição; atividade do certificado da mesma edição\\
+\cod{02_consistencia} & 7 & faixas e períodos de associação sem sobreposição, preço com categoria e faixa da mesma edição, agregação de um nível, restrição de atividade da mesma edição, origem do item coerente com a inscrição, atividade do certificado da mesma edição\\
 \cod{03_inscricao} & 5 & ciclo de vida da inscrição, geração dos itens, troca de preço, uso de benefício e cancelamento\\
-\cod{04_pagamento_documento} & 4 & pagamento só em inscrição aguardando pagamento; transições de pagamento e de documento\\
+\cod{04_pagamento_documento} & 4 & pagamento só em inscrição aguardando pagamento, transições de pagamento e de documento\\
 \cod{05_atividade} & 4 & mesma edição, categoria permitida, capacidade e item da atividade\\
 \cod{06_publicacao} & 2 & cobertura por autor em categoria de autor e taxa por trabalho excedente\\
 \cod{07_certificado} & 2 & elegibilidade por tipo, um certificado válido por finalidade e só revogação\\
@@ -146,7 +147,7 @@ Arquivo & Qtd. & Regras\\
 \end{longtable}
 }
 
-O ciclo de vida da inscrição (RF9) é a regra mais extensa. Toda inscrição nasce como INICIADA, e o trigger calcula a validade do preço e cria os itens financeiros. As transições permitidas são estas: de INICIADA para aguardando validação, aguardando pagamento, cancelada ou expirada; de aguardando validação para aguardando pagamento, cancelada ou expirada; de aguardando pagamento para paga, cancelada ou expirada; e de paga para concluída ou cancelada. Concluída, cancelada e expirada são finais. A passagem para aguardando pagamento exige documento aprovado quando a categoria pede comprovação, e a passagem para paga exige pagamentos confirmados que cubram o saldo.
+O ciclo de vida da inscrição (RF9) é a regra mais extensa. Toda inscrição nasce como INICIADA, e o trigger calcula a validade do preço e cria os itens financeiros. As transições permitidas são estas: de INICIADA para aguardando validação, aguardando pagamento, cancelada ou expirada. De aguardando validação para aguardando pagamento, cancelada ou expirada. De aguardando pagamento para paga, cancelada ou expirada. E de paga para concluída ou cancelada. Concluída, cancelada e expirada são finais. A passagem para aguardando pagamento exige documento aprovado quando a categoria pede comprovação, e a passagem para paga exige pagamentos confirmados que cubram o saldo.
 
 Ao cancelar uma inscrição, o banco cancela os itens e as atividades, libera a cobertura dos trabalhos e marca os pagamentos confirmados como estornados, com o reembolso calculado pela política da edição.
 
@@ -164,7 +165,7 @@ Dois procedimentos completam as regras: \cod{prc_expirar_pendencias} expira insc
 
 Para o RF29, o trigger de inscrição em atividade bloqueia a linha da atividade com \cod{SELECT ... FOR UPDATE} antes de contar as vagas ocupadas. Se duas transações tentam ocupar a última vaga ao mesmo tempo, a segunda espera a primeira terminar e já encontra a vaga ocupada. O mesmo bloqueio é usado nos limites de benefício e na emissão de certificados.
 
-Para o RF25, os triggers de auditoria registram, em cada inserção, alteração ou exclusão de inscrição, documento, pagamento e certificado, a tabela, o registro, a operação, o instante e os valores anterior e novo. O responsável vem de um parâmetro da sessão (\cod{eventos.cp_pessoa}) que a aplicação define; quando ele está vazio, a operação é registrada como automática. A auditoria não aceita alteração nem exclusão.
+Para o RF25, os triggers de auditoria registram, em cada inserção, alteração ou exclusão de inscrição, documento, pagamento e certificado, a tabela, o registro, a operação, o instante e os valores anterior e novo. O responsável vem de um parâmetro da sessão (\cod{eventos.cp_pessoa}) que a aplicação define. Quando ele está vazio, a operação é registrada como automática. A auditoria não aceita alteração nem exclusão.
 
 Para o RF30, o banco guarda só os dados pessoais necessários e, no caso dos documentos, apenas o caminho do arquivo. Há cinco papéis: administração, financeiro, credenciamento, organização e relatório. Cada um recebe permissões só nas tabelas e colunas de que precisa, e quem não deve ver CPF, passaporte ou e-mail usa a visão \cod{vw_pessoa_mascarada}. A anonimização substitui os dados da pessoa e preserva inscrições, itens e pagamentos.
 
@@ -183,9 +184,9 @@ O banco não usa nenhuma extensão nem linguagem de propósito geral. O Marco 1 
 
 Os dados são sintéticos, gerados por scripts SQL e revisados pelo grupo. A geração é determinística: os valores saem de contas sobre o número da linha (\cod{MOD}) com \cod{WITH RECURSIVE}, sem sorteio, e toda instalação produz os mesmos dados. Os nove arquivos de \cod{sql/03_populacao} seguem a ordem do ciclo de vida: cadastros, oferta, inscrições, validação de documentos, atividades, publicação, pagamentos, realização do evento e certificados.
 
-Os dados cobrem um cenário de cada regra. As edições de 2025 já aconteceram e têm credenciamento, presença, inscrições concluídas e certificados; as de 2026 estão em andamento, com inscrições, pagamentos e documentos pendentes. Há um evento agregador, combos que criam períodos de associação, documentos rejeitados com segunda tentativa aprovada, pagamentos recusados seguidos de pagamento confirmado, cancelamentos com e sem estorno, benefícios dentro dos limites, trabalhos com coautoria, trabalhos sem cobertura e com sobretaxa, e certificados dos quatro tipos, inclusive revogados e reemitidos.
+Os dados cobrem um cenário de cada regra. As edições de 2025 já aconteceram e têm credenciamento, presença, inscrições concluídas e certificados. As de 2026 estão em andamento, com inscrições, pagamentos e documentos pendentes. Há um evento agregador, combos que criam períodos de associação, documentos rejeitados com segunda tentativa aprovada, pagamentos recusados seguidos de pagamento confirmado, cancelamentos com e sem estorno, benefícios dentro dos limites, trabalhos com coautoria, trabalhos sem cobertura e com sobretaxa, e certificados dos quatro tipos, inclusive revogados e reemitidos.
 
-A Tabela~\ref{tab:volumes} mostra o volume final. Sete tabelas passam de cinco mil linhas; a rubrica pede três. Das 9.000 inscrições, 3.746 estão concluídas, 3.705 pagas, 660 expiradas, 342 aguardando pagamento, 230 canceladas, 226 aguardando validação e 91 iniciadas.
+A Tabela~\ref{tab:volumes} mostra o volume final. Sete tabelas passam de cinco mil linhas, e a rubrica pede três. Das 9.000 inscrições, 3.746 estão concluídas, 3.705 pagas, 660 expiradas, 342 aguardando pagamento, 230 canceladas, 226 aguardando validação e 91 iniciadas.
 
 \begin{table}[h!]
 \caption{Linhas por tabela depois da população}\label{tab:volumes}

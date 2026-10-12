@@ -48,15 +48,15 @@ Elemento & Como aparece & Como ler & Itens no modelo\\
 Entidade forte & retângulo azul & tem identidade própria e existe sem depender de outra entidade & Pessoa, Evento, Instituição, Inscrição, Termo, Certificado, Auditoria\\
 Entidade fraca & retângulo amarelo & só existe ligada à entidade dona, por um relacionamento identificador com cardinalidade (1,1) do lado da dona & Edição, Categoria de Inscrição, Faixa de Inscrição, Atividade, Trabalho Científico, Período de Associação, Benefício, Documento de Comprovação, Pagamento, Item Financeiro\\
 Entidade associativa & retângulo rosa envolvendo um losango & relacionamento N:N que ganhou atributos próprios e passou a ser tratado como entidade, podendo participar de outros relacionamentos & Preço, Vínculo Institucional, Inscrição em Atividade\\
-Autorrelacionamento & losango verde & relacionamento de uma entidade com ela mesma; as duas linhas saem da mesma entidade, cada uma com um papel & Agrega (edição agregadora e edições agregadas)\\
-Relacionamento & losango branco & liga as entidades das pontas; atributos ligados ao losango pertencem à ligação, e não a uma das entidades & os demais 26 relacionamentos\\
+Autorrelacionamento & losango verde & relacionamento de uma entidade com ela mesma. As duas linhas saem da mesma entidade, cada uma com um papel & Agrega (edição agregadora e edições agregadas)\\
+Relacionamento & losango branco & liga as entidades das pontas. Atributos ligados ao losango pertencem à ligação, e não a uma das entidades & os demais 26 relacionamentos\\
 Atributo identificador & círculo cheio & identifica cada instância da entidade & um por entidade (\cod{cp_id_*})\\
 Atributo & círculo vazio & característica da entidade ou do relacionamento a que está ligado & todos os demais\\
 Cardinalidade & par (mín, máx) junto à entidade & lida a partir do outro lado, como explicado abaixo & todas as ligações\\
 \end{longtable}
 }
 
-O par escrito junto a uma entidade diz com quantas instâncias dela uma instância do outro lado se relaciona. O mínimo 0 indica participação opcional e o mínimo 1, obrigatória; o máximo 1 ou n indica se a ligação é única ou múltipla. Em Evento (1,1) Realiza (1,n) Edição, cada edição pertence a exatamente um evento e cada evento tem uma ou mais edições. As cores servem para facilitar a leitura; o tipo de cada entidade também está marcado nas propriedades do brModelo (entidade fraca, entidade associativa e autorrelacionamento).
+O par escrito junto a uma entidade diz com quantas instâncias dela uma instância do outro lado se relaciona. O mínimo 0 indica participação opcional e o mínimo 1, obrigatória. O máximo 1 ou n indica se a ligação é única ou múltipla. Em Evento (1,1) Realiza (1,n) Edição, cada edição pertence a exatamente um evento e cada evento tem uma ou mais edições. As cores servem para facilitar a leitura. O tipo de cada entidade também está marcado nas propriedades do brModelo (entidade fraca, entidade associativa e autorrelacionamento).
 
 \subsection{Evolução do modelo}
 
@@ -71,11 +71,11 @@ A primeira versão (Figura~\ref{fig:merv1}) tinha 34 entidades. Ela foi útil pa
 \label{fig:merv1}
 \end{figure}
 
-Depois do retorno do professor, a segunda versão existiu como dicionário: o grupo revisou cada entidade e cada ligação por escrito antes de redesenhar (Seção~\ref{sec:escopo}). A terceira versão levou esse dicionário para o brModelo, já com 20 entidades e os relacionamentos com cardinalidade. Na revisão dela, o grupo fez os ajustes que resultaram na versão final: o relacionamento entre Pessoa e Certificado ganhou o nome Certifica, porque o nome Recebe já era usado entre Instituição e Benefício; foram criados Tarifa, que liga a atividade selecionada ao item cobrado, e Atesta, que liga o certificado de atividade à atividade; a cardinalidade de Publica do lado da Edição passou a ser (1,1); e todos os atributos foram desenhados no diagrama, conferidos um a um com as colunas do banco.
+Depois do retorno do professor, a segunda versão existiu como dicionário: o grupo revisou cada entidade e cada ligação por escrito antes de redesenhar (Seção~\ref{sec:escopo}). A terceira versão levou esse dicionário para o brModelo, já com 20 entidades e os relacionamentos com cardinalidade. Na revisão dela, o grupo fez os ajustes que resultaram na versão final: o relacionamento entre Pessoa e Certificado ganhou o nome Certifica, porque o nome Recebe já era usado entre Instituição e Benefício. Foram criados Tarifa, que liga a atividade selecionada ao item cobrado, e Atesta, que liga o certificado de atividade à atividade. A cardinalidade de Publica do lado da Edição passou a ser (1,1). E todos os atributos foram desenhados no diagrama, conferidos um a um com as colunas do banco.
 
 \subsection{Modelo conceitual final}
 
-A Figura~\ref{fig:merfinal} mostra o diagrama completo: 20 entidades (7 fortes, 10 fracas e 3 associativas), 30 relacionamentos e todos os atributos. Como o diagrama é grande, as Figuras~\ref{fig:merA} a~\ref{fig:merF} repetem cada região ampliada, com o comentário das decisões de cada parte. As figuras são vetoriais, recortadas da exportação do brModelo, e podem ser ampliadas no PDF sem perda de nitidez. Como as regiões do diagrama se tocam, um recorte pode mostrar parte de outro; cada elemento é comentado na parte em que aparece por inteiro.
+A Figura~\ref{fig:merfinal} mostra o diagrama completo: 20 entidades (7 fortes, 10 fracas e 3 associativas), 30 relacionamentos e todos os atributos. Como o diagrama é grande, as Figuras~\ref{fig:merA} a~\ref{fig:merF} repetem cada região ampliada, com o comentário das decisões de cada parte. As figuras são vetoriais, recortadas da exportação do brModelo, e podem ser ampliadas no PDF sem perda de nitidez. Como as regiões do diagrama se tocam, um recorte pode mostrar parte de outro. Cada elemento é comentado na parte em que aparece por inteiro.
 
 \begin{landscape}
 \begin{figure}[p]
@@ -88,7 +88,7 @@ A Figura~\ref{fig:merfinal} mostra o diagrama completo: 20 entidades (7 fortes, 
 
 \subsubsection*{Parte A: evento e edição}
 
-Evento é forte e Edição é fraca, identificada pelo evento (Realiza). Cada edição guarda o período, o local, a modalidade e as políticas que valem para ela: prazo de reserva do preço, regra de reembolso, exigência de credenciamento, frequência mínima para certificado e limite de trabalhos por inscrição (RF1, RF15, RF20, RF22, RE2, RE9). O autorrelacionamento Agrega liga uma edição agregadora às edições que acontecem junto com ela (RF2); limitamos a agregação a um nível, para que a regra de acesso fique simples de verificar. Organiza liga Pessoa e Edição e guarda, em \cod{tp_papel}, o papel de cada membro da equipe (RF24).
+Evento é forte e Edição é fraca, identificada pelo evento (Realiza). Cada edição guarda o período, o local, a modalidade e as políticas que valem para ela: prazo de reserva do preço, regra de reembolso, exigência de credenciamento, frequência mínima para certificado e limite de trabalhos por inscrição (RF1, RF15, RF20, RF22, RE2, RE9). O autorrelacionamento Agrega liga uma edição agregadora às edições que acontecem junto com ela (RF2). Limitamos a agregação a um nível, para que a regra de acesso fique simples de verificar. Organiza liga Pessoa e Edição e guarda, em \cod{tp_papel}, o papel de cada membro da equipe (RF24).
 
 \begin{figure}[h!]
 \centering
@@ -99,7 +99,7 @@ Evento é forte e Edição é fraca, identificada pelo evento (Realiza). Cada ed
 
 \subsubsection*{Parte B: oferta da edição}
 
-Categoria de Inscrição, Faixa de Inscrição e Atividade são fracas de Edição (Oferece, Estabelece e Programa), porque o enunciado diz que cada edição define as suas e que nomes iguais em edições diferentes não são a mesma coisa (RF5). Preço é a entidade associativa entre Categoria e Faixa. Cada preço combina uma categoria, uma faixa e um tipo de associação, e guarda o valor da inscrição e, no combo, o valor da associação (RF6, RF7). O relacionamento Restringe diz quais categorias podem selecionar uma atividade; atividade sem restrição fica aberta a todas (RE17).
+Categoria de Inscrição, Faixa de Inscrição e Atividade são fracas de Edição (Oferece, Estabelece e Programa), porque o enunciado diz que cada edição define as suas e que nomes iguais em edições diferentes não são a mesma coisa (RF5). Preço é a entidade associativa entre Categoria e Faixa. Cada preço combina uma categoria, uma faixa e um tipo de associação, e guarda o valor da inscrição e, no combo, o valor da associação (RF6, RF7). O relacionamento Restringe diz quais categorias podem selecionar uma atividade. Atividade sem restrição fica aberta a todas (RE17).
 
 \begin{figure}[h!]
 \centering
@@ -125,7 +125,7 @@ Benefício é fraco de Instituição (Recebe). O uso do benefício não virou en
 
 Inscrição é forte, com identidade própria, porque a mesma pessoa pode ter mais de uma inscrição na mesma edição (por exemplo, uma expirada e uma nova). Ela se liga à pessoa (Efetua) e ao preço (Enquadra) e, pelo preço, à categoria, à faixa e à edição. Por isso a inscrição não guarda categoria nem edição.
 
-Item Financeiro, Pagamento e Documento de Comprovação são fracos de Inscrição (Compõe, Transaciona e Garante). Cada item é uma parte do valor devido e pode vir de uma atividade (Tarifa) ou de um trabalho excedente (Sobretaxa) (RF12). Pagamento guarda cada tentativa, com forma, valor e situação (RF13, RF14); o reembolso fica no próprio pagamento (RE15). Documento guarda cada envio, e Analisa liga o documento à pessoa que o analisou (RF8, RE12).
+Item Financeiro, Pagamento e Documento de Comprovação são fracos de Inscrição (Compõe, Transaciona e Garante). Cada item é uma parte do valor devido e pode vir de uma atividade (Tarifa) ou de um trabalho excedente (Sobretaxa) (RF12). Pagamento guarda cada tentativa, com forma, valor e situação (RF13, RF14). O reembolso fica no próprio pagamento (RE15). Documento guarda cada envio, e Analisa liga o documento à pessoa que o analisou (RF8, RE12).
 
 Inscrição em Atividade é associativa entre Inscrição e Atividade, com data de inclusão, situação, prazo da reserva, cancelamento e presença (RF10, RF21, RE4). Origina liga a inscrição de combo ao período de associação criado quando ela é paga (RF7).
 
@@ -138,7 +138,7 @@ Inscrição em Atividade é associativa entre Inscrição e Atividade, com data 
 
 \subsubsection*{Parte E: publicação e termos}
 
-Trabalho Científico é fraco de Edição (Publica). Assina liga o trabalho aos seus autores, com pelo menos um autor (RF18). Cobre liga o trabalho à inscrição que o cobre; cada trabalho tem no máximo uma inscrição de cobertura (RF19, RE9), e o trabalho que passa do limite da edição gera um item pela Sobretaxa. Termo é forte e cada instância é uma versão. Responde liga a inscrição à versão do termo apresentada, com o aceite e a data, então é possível saber qual versão valia em cada inscrição (RF23).
+Trabalho Científico é fraco de Edição (Publica). Assina liga o trabalho aos seus autores, com pelo menos um autor (RF18). Cobre liga o trabalho à inscrição que o cobre. Cada trabalho tem no máximo uma inscrição de cobertura (RF19, RE9), e o trabalho que passa do limite da edição gera um item pela Sobretaxa. Termo é forte e cada instância é uma versão. Responde liga a inscrição à versão do termo apresentada, com o aceite e a data, então é possível saber qual versão valia em cada inscrição (RF23).
 
 \begin{figure}[h!]
 \centering
@@ -149,7 +149,7 @@ Trabalho Científico é fraco de Edição (Publica). Assina liga o trabalho aos 
 
 \subsubsection*{Parte F: certificação e auditoria}
 
-Certificado é forte e se liga à pessoa (Certifica), à edição (Emite) e, no certificado de atividade, à atividade (Atesta). Ele não depende da inscrição, porque organizadores e autores podem receber certificado sem estar inscritos (RF22, RE16). Auditoria é forte e Executa identifica a pessoa responsável pela operação, quando houver (RF25). Os losangos Certifica e Executa ficam à esquerda desta região, perto de Edição, e aparecem na Figura~\ref{fig:merfinal}; o recorte mostra as linhas que chegam deles a Certificado e Auditoria.
+Certificado é forte e se liga à pessoa (Certifica), à edição (Emite) e, no certificado de atividade, à atividade (Atesta). Ele não depende da inscrição, porque organizadores e autores podem receber certificado sem estar inscritos (RF22, RE16). Auditoria é forte e Executa identifica a pessoa responsável pela operação, quando houver (RF25). Os losangos Certifica e Executa ficam à esquerda desta região, perto de Edição, e aparecem na Figura~\ref{fig:merfinal}. O recorte mostra as linhas que chegam deles a Certificado e Auditoria.
 
 \begin{figure}[h!]
 \centering
@@ -218,7 +218,74 @@ R30 & Executa & Pessoa & Auditoria & (0,1) (0,n) & \\
 }
 
 \subsection{Modelo lógico}
+\label{sec:logico}
 
-O modelo lógico tem 24 tabelas: uma para cada entidade e uma para cada relacionamento N:N sem entidade própria (Assina, Responde, Organiza e Restringe). Toda tabela tem chave primária \cod{cp_id_*}, exceto as quatro de junção, cuja chave é o par de chaves estrangeiras (em Organiza, o trio com o papel). As entidades fracas recebem uma chave substituta e mantêm a identificação do conceitual com uma restrição de unicidade sobre a dona e o identificador parcial. A Seção~\ref{sec:traducao} detalha essas regras.
+O modelo lógico foi gerado no brModelo pela conversão do modelo conceitual e depois revisado à mão, tabela por tabela, contra a DDL do banco. Ele tem 24 tabelas: uma para cada uma das 20 entidades e uma para cada relacionamento N:N sem entidade própria (Assina, Responde, Organiza e Restringe). A Seção~\ref{sec:traducao} detalha as regras de tradução.
 
-\pendente{inserir o modelo lógico exportado do brModelo: visão geral e recortes por parte}
+A conversão automática teve quatro problemas, que o grupo corrigiu. O relacionamento Recebe, que é 1:N, tinha virado tabela e passou a ser a chave estrangeira \cod{ce_instituicao} em Benefício. Responde, que é N:N com atributos, não tinha gerado tabela e foi criada com \cod{ind_aceite} e \cod{dt_resposta}. Vínculo Institucional, Preço e Inscrição em Atividade usavam as chaves estrangeiras como chave primária, o que impediria, por exemplo, a mesma pessoa voltar à mesma instituição em outro período. As três passaram a ter chave própria (\cod{cp_id_*}), como no banco. Por fim, as chaves estrangeiras que faltavam (como as de Pagamento, Item Financeiro e Documento para Inscrição) foram incluídas, e todas foram renomeadas para o padrão \cod{ce_*} da Seção~\ref{sec:nomes}.
+
+Para ler as figuras: cada retângulo é uma tabela, PK marca a chave primária e FK marca a chave estrangeira. Cada linha liga uma chave estrangeira à tabela que ela referencia, com a cardinalidade nas pontas. As 37 chaves estrangeiras do banco aparecem no modelo. Só \cod{ce_edicao_agregadora}, em Edição, não tem linha desenhada, porque aponta para a própria tabela e o brModelo não desenha ligação de uma tabela com ela mesma.
+
+O brModelo oferece um conjunto pequeno de tipos, então três diferenças com o banco ficam no diagrama. Valores monetários e percentuais aparecem como \cod{FLOAT}, e no banco são \cod{numeric}. Chaves aparecem como \cod{INT}, e no banco são \cod{bigint}. Data com hora aparece como \cod{DATETIME}, que no PostgreSQL é \cod{timestamp}. O brModelo também força o tipo \cod{INT} em toda coluna marcada como PK. Por isso \cod{tp_papel}, que faz parte da chave de Organiza e no banco é \cod{varchar(20)}, aparece como \cod{INT}, com uma nota ao lado indicando o tipo real. Os tipos exatos estão no dicionário (Tabela~\ref{tab:dicionario}) e na DDL.
+
+A Figura~\ref{fig:loggeral} mostra o modelo completo, e as Figuras~\ref{fig:logA} a~\ref{fig:logG} ampliam cada região, também em formato vetorial.
+
+\begin{landscape}
+\begin{figure}[p]
+\centering
+\loggeral
+\caption{Modelo lógico do EventOS}
+\label{fig:loggeral}
+\end{figure}
+\end{landscape}
+
+\begin{figure}[h!]
+\centering
+\logA
+\caption{Parte A do modelo lógico: Pessoa, Período de Associação, Assina, Auditoria e Organiza}
+\label{fig:logA}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\logB
+\caption{Parte B do modelo lógico: Vínculo Institucional, Instituição, Benefício e Documento de Comprovação}
+\label{fig:logB}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\logC
+\caption{Parte C do modelo lógico: Evento e Edição}
+\label{fig:logC}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\logD
+\caption{Parte D do modelo lógico: Faixa de Inscrição, Preço, Categoria de Inscrição e Restringe}
+\label{fig:logD}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\logE
+\caption{Parte E do modelo lógico: Certificado e Atividade}
+\label{fig:logE}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\logF
+\caption{Parte F do modelo lógico: Inscrição, Trabalho Científico, Pagamento, Termo e Responde}
+\label{fig:logF}
+\end{figure}
+
+\begin{figure}[h!]
+\centering
+\logG
+\caption{Parte G do modelo lógico: Inscrição em Atividade e Item Financeiro}
+\label{fig:logG}
+\end{figure}
+
+\FloatBarrier

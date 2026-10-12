@@ -19,14 +19,14 @@ Banco de dados do EventOS, sistema de gestão de eventos científicos da SBTC (C
 | Schema | `sql/00_init.sql` | schema `eventos`, definido como padrão do banco |
 | Tabelas | `sql/01_ddl/` | 24 tabelas: 20 entidades do MER e 4 relacionamentos N:N |
 | Regras de negócio | `sql/02_constraints/` | CHECKs, triggers (ciclo da inscrição, pagamentos, vagas, benefícios, publicação, certificados, histórico, cardinalidades mínimas, auditoria) e 2 procedimentos |
-| População | `sql/03_populacao/` | dados sintéticos; 7 tabelas com mais de 5.000 linhas |
+| População | `sql/03_populacao/` | dados sintéticos, 7 tabelas com mais de 5.000 linhas |
 | Visões e acesso | `sql/04_views/` | 12 relatórios do RF26, atributos derivados, visão mascarada e 5 papéis |
 | Metadados | `sql/05_metadados/` | exploração do `information_schema` (execução manual) |
 | Testes | `sql/99_testes/` | 73 casos de restrições e regras (execução manual, sem alterar dados) |
 
 ## Como executar
 
-Requisitos: **PostgreSQL 14 ou superior** e `psql` (ou o *PSQL Tool* do pgAdmin). Não usa nenhuma extensão: só o PL/pgSQL, que já vem instalado em todo PostgreSQL. O usuário precisa poder criar banco e papéis; o superusuário `postgres` atende.
+Requisitos: **PostgreSQL 14 ou superior** e `psql` (ou o *PSQL Tool* do pgAdmin). Não usa nenhuma extensão: só o PL/pgSQL, que já vem instalado em todo PostgreSQL. O usuário precisa poder criar banco e papéis, e o superusuário `postgres` atende.
 
 ### Opção 1 · PostgreSQL nativo (linha de comando)
 
@@ -77,11 +77,10 @@ Sobe PostgreSQL 16 e pgAdmin (http://localhost:5050) e executa `sql/main.sql` na
 | Marco | Entrega | Status |
 |-------|---------|--------|
 | 1 · MIBD | DDL, regras, população, visões, metadados e testes | concluído |
-| 1 · MIBD | MER conceitual final e relatório SBC (PDF e fonte) | concluído |
-| 1 · MIBD | Modelo lógico no brModelo e inserção no relatório | pendente |
+| 1 · MIBD | MER conceitual, modelo lógico e relatório SBC (PDF e fonte) | concluído |
 
 ## Regras atendidas
 
 - SQL ISO/IEC 9075 na DDL, na população, nas visões, nos procedimentos e nos papéis. O único código fora do padrão é o corpo das funções de trigger, em PL/pgSQL, porque o PostgreSQL não aceita trigger em SQL puro.
-- Reprodução apenas com PostgreSQL e pgAdmin; o Docker é opcional.
+- Reprodução apenas com PostgreSQL e pgAdmin. O Docker é opcional.
 - Nenhuma linguagem de propósito geral acessa o banco.

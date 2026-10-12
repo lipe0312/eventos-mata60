@@ -13,7 +13,7 @@ Todo o código e o modelo estão no repositório público \repo, sem necessidade
 Pasta & Conteúdo\\
 \midrule
 \cod{modelagem/} & modelo conceitual (brModelo) nas versões inicial e final, modelo lógico e legenda de cores\\
-\cod{sql/} & scripts de implantação; \cod{sql/main.sql} executa tudo na ordem\\
+\cod{sql/} & scripts de implantação. \cod{sql/main.sql} executa tudo na ordem\\
 \cod{relatorio/} & este relatório em PDF\\
 \cod{docs/} & tutorial de reprodução detalhado\\
 \cod{docker/} & arquivos opcionais para subir PostgreSQL e pgAdmin em contêineres\\
@@ -23,7 +23,7 @@ Pasta & Conteúdo\\
 
 \subsection{Tutorial de reprodução}
 
-A reprodução precisa apenas do PostgreSQL, versão 14 ou superior, e do pgAdmin (Regra 5). Nenhuma extensão é usada. O usuário precisa poder criar bancos e papéis; o superusuário \cod{postgres} atende.
+A reprodução precisa apenas do PostgreSQL, versão 14 ou superior, e do pgAdmin (Regra 5). Nenhuma extensão é usada. O usuário precisa poder criar bancos e papéis. O superusuário \cod{postgres} atende.
 
 \textbf{Pela linha de comando.} Na raiz do repositório:
 
@@ -64,10 +64,10 @@ psql -U postgres -c "DROP ROLE papel_admin, papel_financeiro, papel_credenciamen
 
 O arquivo \cod{sql/main.sql} executa, nesta ordem:
 \begin{enumerate}
-  \item \cod{00_init.sql}: cria o schema;
-  \item \cod{01_ddl/}: as 20 tabelas das entidades e as 4 tabelas de junção;
-  \item \cod{02_constraints/}: verificações declarativas, triggers e procedimentos, em onze arquivos por tema;
-  \item \cod{03_populacao/}: nove arquivos de dados sintéticos;
+  \item \cod{00_init.sql}: cria o schema,
+  \item \cod{01_ddl/}: as 20 tabelas das entidades e as 4 tabelas de junção,
+  \item \cod{02_constraints/}: verificações declarativas, triggers e procedimentos, em onze arquivos por tema,
+  \item \cod{03_populacao/}: nove arquivos de dados sintéticos,
   \item \cod{04_views/}: visões derivadas, visões de relatório, visão mascarada e papéis.
 \end{enumerate}
 

@@ -28,7 +28,7 @@ psql -U postgres -d eventos -f sql/main.sql
 
 ## 2. pgAdmin
 
-1. *Servers → Databases → Create → Database*: nome `eventos`; na aba *Definition*, Encoding `UTF8` e Template `template0`.
+1. *Servers → Databases → Create → Database*: nome `eventos`. Na aba *Definition*, Encoding `UTF8` e Template `template0`.
 2. Botão direito em `eventos` → **PSQL Tool**.
 3. `\i '/caminho/para/eventos-mata60/sql/main.sql'`
 
@@ -54,4 +54,4 @@ psql -U postgres -d eventos -f sql/05_metadados/01_metadados.sql
 
 No Docker, prefixe com `docker compose exec postgres` e use os caminhos `/sql/...` com o usuário `eventos`.
 
-O arquivo de testes roda dentro de uma transação desfeita ao final (`ROLLBACK`). Ele lista cada caso como `OK` ou `FALHA` e termina com o total; o esperado é `73 | 73 | 0`.
+O arquivo de testes roda dentro de uma transação desfeita ao final (`ROLLBACK`). Ele lista cada caso como `OK` ou `FALHA` e termina com o total. O esperado é `73 | 73 | 0`.
