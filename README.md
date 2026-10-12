@@ -8,7 +8,7 @@ Banco de dados do EventOS, sistema de gestão de eventos científicos da SBTC (C
 |-------|----------|
 | `modelagem/` | MER conceitual (Peter Chen, brModelo), legenda de cores e modelo lógico, por versão |
 | `sql/` | Implantação do Marco 1. `sql/main.sql` executa tudo na ordem |
-| `relatorio/` | Relatório do Marco 1 no modelo de Capítulo de Livro da SBC: PDF e fonte LaTeX para o Overleaf |
+| `relatorio/` | Relatório do Marco 1 no [modelo de Capítulo de Livro da SBC](https://www.sbc.org.br/wp-content/uploads/2024/07/modeloparapublicaodecaptulosdelivros.zip): PDF e fonte LaTeX para o Overleaf |
 | `docs/` | Tutorial de reprodução detalhado |
 | `docker/` | Ponto de entrada opcional para subir PostgreSQL e pgAdmin em containers |
 

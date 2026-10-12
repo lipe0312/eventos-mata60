@@ -1,6 +1,6 @@
 # Relatório
 
-Relatório do Marco 1 no modelo de Capítulo de Livro da SBC (Regra 4).
+Relatório do Marco 1 no [modelo de Capítulo de Livro da SBC](https://www.sbc.org.br/wp-content/uploads/2024/07/modeloparapublicaodecaptulosdelivros.zip) (Regra 4).
 
 | Caminho | Conteúdo |
 |---------|----------|
